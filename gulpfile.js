@@ -26,7 +26,7 @@ gulp.task('serve', () => {
     bs.init({
         online: false,
         notify: false,
-        server: true,
+        server: ['res'],
         middleware: [
             webpackDevMiddleware(compiler, {
                 noInfo: false,
