@@ -4,6 +4,7 @@ import 'pixi.js';
 
 import Controller from './common/Controller';
 import DisplayObject from './objects/DisplayObject';
+import Character from './characters/Character';
 import Ground from './map/Ground';
 
 const { loader, Application, utils } = PIXI;
@@ -25,10 +26,10 @@ loader
     let obj = new DisplayObject({
         x: 100,
         y: 200,
-        width: 60,
-        height: 100,
+        character: new Character(),
         debug: true
     });
+    new Controller(obj);
 
     let ground = new Ground({
         x: 0,
@@ -37,8 +38,6 @@ loader
         texture: TextureCache['ground.png']
     })
 
-    new Controller(obj);
-
     stage.addChild(obj, ground);
 
     ticker.add(() => {
@@ -46,6 +45,4 @@ loader
 
         ground.check(obj)
     })
-
-    renderer.render(stage);
 })

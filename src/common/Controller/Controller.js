@@ -8,7 +8,11 @@ export default class Controller {
 
     _bind () {
         window.addEventListener('keydown', e => {
-            console.log(e)
+            this.target.setKeys(e.keyCode, true);
+        })
+
+        window.addEventListener('keyup', e => {
+            this.target.setKeys(e.keyCode, false);
         })
     }
 

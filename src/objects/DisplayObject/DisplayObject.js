@@ -10,29 +10,35 @@ export default class DisplayObject extends Sprite {
 
         const { 
             x = 0, 
-            y = 0,  
-            width = 0,
-            height = 0,
-            weight = 1,
-            character = null,
+            y = 0,
+            type = 'type-a',
+            character,
             debug = false,
         } = opt;
-
+        
         this.x = x;
         this.y = y;
-        this._width = width;
-        this._character = character;
-        this._height = height;
-        this._weight = weight;
+        this._type = type;
         this._forces = {
             gravity: new Vector(0, GRAVITY)
         };
         this._velocity = new Vector(0, 0);
         this._lastPoint = { x: x, y: y };
+        this._keys = {};
+        this._setCharacter(character);
 
         this._debug = debug;
 
         debug && this._setDebugMode();
+    }
+
+    _setCharacter (character) {
+        const { width, height, weight, animation } = character;
+
+        this._character = character;
+        this._width = width;
+        this._height = height;
+        this._weight = weight;
     }
 
     _setDebugMode () {
@@ -42,6 +48,10 @@ export default class DisplayObject extends Sprite {
         rectangle.drawRect(-this._width / 2, -this._height, this._width, this._height);
 
         this.addChild(rectangle)
+    }
+
+    _handleKeys () {
+        this._character.handleKeys(this);
     }
 
     _handleVelocity () {
@@ -102,7 +112,13 @@ export default class DisplayObject extends Sprite {
         return this._lastPoint.x;
     }
 
+    setKeys (keyCode, isDown) {
+        this._keys[keyCode] = isDown;
+    }
+
     update () {
+        this._handleKeys();
+
         this._handleVelocity();
 
         this._lastPoint.x = this.x;

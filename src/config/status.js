@@ -1,0 +1,1 @@
+export const STATUS_STAND = 'STATUS_STAND';
