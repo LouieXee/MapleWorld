@@ -1,4 +1,4 @@
-import { GRAVITY } from '../../config';
+import { SLOPE_GROUND_DELTA, SLOPE_WIDTH, SLOPE_HEIGHT, SLOPE_LEFT_VALUE, SLOPE_RIGHT_VALUE } from '../../config';
 
 const { Sprite, Graphics, particles } = PIXI;
 const { ParticleContainer } = particles;
@@ -17,15 +17,17 @@ export default class Slope extends Sprite {
             debug = false,
             showTexture = true,
 
-            deltaHeight = 26,
-            leftFunction = x => { return -2 / 3 * x},
-            rightFunction = x => { return 2 / 3 * x }
+            slopeWidth = SLOPE_WIDTH,
+            slopeHeight = SLOPE_HEIGHT,
+            deltaHeight = SLOPE_GROUND_DELTA,
+            leftFunction = x => { return SLOPE_LEFT_VALUE * x},
+            rightFunction = x => { return SLOPE_RIGHT_VALUE * x }
         } = opt;
 
         this.x = x;
         this.y = y;
-        this._width = size * texture.width;
-        this._height = size * (texture.height - deltaHeight);
+        this._width = size * slopeWidth;
+        this._height = size * (slopeHeight - deltaHeight);
         this._type = type;
         this._slopeTexture = texture;
         this._lineFunction = type == 'left' 
@@ -35,17 +37,18 @@ export default class Slope extends Sprite {
         this._debug = debug;
         this._showTexture = showTexture;
 
-        debug && this._setDebugMode();
-        showTexture && this._addSlopeChild(
+        texture && showTexture && this._addSlopeChild(
             size, 
             this._type == 'left'
             ? i => {
-                return [i * texture.width, (size - 1 - i) * (texture.height - deltaHeight)];
+                return [i * slopeWidth, (size - 1 - i) * (slopeHeight - deltaHeight)];
             } 
             : i => {
-                return [i * texture.width, i * (texture.height - deltaHeight)];
+                return [i * slopeWidth, i * (slopeHeight - deltaHeight)];
             }
         );
+
+        debug && this._setDebugMode();
     }
 
     _setDebugMode () {
@@ -76,15 +79,17 @@ export default class Slope extends Sprite {
     }
 
     check (obj) {
-        if (obj.x >= this.x && obj.x <= this.x + this._width && obj.getVelocityY() >= 0) {
+        if (obj.x >= this.x && obj.x <= this.x + this._width && obj.getVelocity().y >= 0) {
             let localLastPoint = this.toLocal(obj.getLastPoint());
             let localCurrentPoint = this.toLocal(obj.position);
             let currentLineY = this._lineFunction(localCurrentPoint.x);
             let maxMoveSpeed = obj.getMaxMoveSpeed();
 
             if (localLastPoint.y <= this._lineFunction(localLastPoint.x) + maxMoveSpeed && localCurrentPoint.y >= currentLineY - maxMoveSpeed) {
+                let force = obj.getResultForce();
+
                 obj
-                .addForce(0, -GRAVITY, 'ground')
+                .addForce('ground', 0, -force.y)
                 .setVelocityY(0);
 
                 localCurrentPoint.y = currentLineY;

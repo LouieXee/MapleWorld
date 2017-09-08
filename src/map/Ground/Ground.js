@@ -1,10 +1,7 @@
-import { GRAVITY, MAX_MOVE_SPEED } from '../../config';
+import { MAX_MOVE_SPEED, GROUND_WIDTH, GROUND_HEIGHT, GROUND_EDGE_WIDTH, SLOPE_GROUND_DELTA } from '../../config';
 
 const { Sprite, utils, Graphics } = PIXI;
 const { TilingSprite } = PIXI.extras;
-
-// 地面和斜坡有1px的差值
-const DELTA = 1;
 
 export default class Ground extends Sprite {
 
@@ -12,26 +9,30 @@ export default class Ground extends Sprite {
         super();
 
         const {
-            texture,
+            texture = null,
             x = 0,
             y = 0,
             size = 1,
+            edge = 'none',
             debug = false,
-            showTexture = true
+            showTexture = true,
+
+            // 地面和斜坡有1的差值
+            delta = GROUND_HEIGHT - SLOPE_GROUND_DELTA
         } = opt;
 
         this.x = x;
         this.y = y;
-        this._width = size * texture.width;
-        this._height = texture.height;
-        this._size = size;
+        this._width = size * GROUND_WIDTH;
         this._groundTexture = texture;
+        this._delta = delta;
 
         this._debug = debug;
         this._showTexture = showTexture;
 
+        texture && showTexture && this.addChild(new TilingSprite(texture, this._width, texture.height));
+
         debug && this._setDebugMode();
-        showTexture && this.addChild(new TilingSprite(texture, this._width, this._height));
     }
 
     _setDebugMode () {
@@ -46,13 +47,15 @@ export default class Ground extends Sprite {
 
     check (obj) {
         if (obj.x >= this.x && obj.x <= this.x + this._width
-            && obj.getVelocityY() >= 0
-            && (( obj.getLastY() <= this.y && obj.y >= this.y ) 
+            && obj.getVelocity().y >= 0
+            && (( obj.getLastPoint().y <= this.y && obj.y >= this.y ) 
                 // 上坡过程中进入平地做特殊判断
-                || ( obj.getLastY() == obj.y && Math.abs(obj.y - this.y) <= obj.getMaxMoveSpeed() + DELTA ))
+                || ( obj.getLastPoint().y == obj.y && Math.abs(obj.y - this.y) <= obj.getMaxMoveSpeed() + this._delta ))
         ) {
+            let force = obj.getResultForce();
+
             obj
-            .addForce(0, -GRAVITY, 'ground')
+            .addForce('ground', 0, -force.y)
             .setVelocityY(0);
 
             obj.y = this.y;

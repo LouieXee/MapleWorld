@@ -45,6 +45,8 @@ loader
     });
     new Controller(obj);
 
+    let textureGround = TextureCache['ground.png'];
+
     let grounds = [
         new Ground({
             x: 0,
@@ -52,7 +54,7 @@ loader
             size: 2,
             debug: DEBUG,
             showTexture: SHOW_TEXTURE,
-            texture: TextureCache['ground.png']
+            texture: textureGround
         }),
         new Ground({
             x: 360,
@@ -99,7 +101,7 @@ loader
         }),
         new Ground({
             x: 180,
-            y: 361,
+            y: 360,
             size: 1,
             debug: DEBUG,
             showTexture: SHOW_TEXTURE,
@@ -116,7 +118,7 @@ loader
         }),
     ]
 
-    stage.addChild(obj, ...grounds);
+    stage.addChild(...grounds, obj);
 
     ticker.add(() => {
         stats.begin();

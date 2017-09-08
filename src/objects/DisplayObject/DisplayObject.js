@@ -54,7 +54,7 @@ export default class DisplayObject extends Sprite {
 
         let rectangle = new Graphics();
         let point = new Graphics();
-        let status = new Text(`status: ${this._status}`, TEXT_STYLE)
+        let status = new Text(`STATUS: ${this._status}`, TEXT_STYLE)
 
         rectangle.lineStyle(1, COLOR, 1);
         rectangle.drawRect(-this._width / 2, -this._height, this._width, this._height);
@@ -69,7 +69,7 @@ export default class DisplayObject extends Sprite {
         this.addChild(rectangle, point, status)
 
         this._events.on('upadteStatus', currentStatus => {
-            status.text = `status: ${currentStatus}`
+            status.text = `STATUS: ${currentStatus}`
         })
     }
 
@@ -88,11 +88,7 @@ export default class DisplayObject extends Sprite {
     }
 
     _handleVelocity () {
-        let force = new Vector(0, 0);
-
-        for (let key in this._forces) {
-            force.add(this._forces[key]);
-        }
+        let force = this.getResultForce();
 
         // 质量影响横向加速度
         force.x /= this._weight;
@@ -108,7 +104,7 @@ export default class DisplayObject extends Sprite {
         }
     }
 
-    addForce (fx, fy, key) {
+    addForce (key, fx, fy) {
         this._forces[key] = new Vector(fx, fy);
 
         return this;
@@ -120,8 +116,26 @@ export default class DisplayObject extends Sprite {
         return this;
     }
 
-    getVelocityY () {
-        return this._velocity.y;
+    getMaxMoveSpeed () {
+        return this._maxMoveSpeed;
+    }
+
+    getResultForce () {
+        let force = new Vector(0, 0);
+
+        for (let key in this._forces) {
+            force.add(this._forces[key]);
+        }
+
+        return force;
+    }
+
+    getLastPoint () {
+        return this._lastPoint;
+    }
+
+    getVelocity () {
+        return this._velocity;
     }
 
     setVelocityY (vy) {
@@ -130,34 +144,16 @@ export default class DisplayObject extends Sprite {
         return this;
     }
 
-    getVelocityX () {
-        return this._velocity.x;
-    }
-
     setVelocityX (vx) {
         this._velocity.x = vx;
 
         return this;
     }
 
-    getLastPoint () {
-        return this._lastPoint;
-    }
-
-    getLastY () {
-        return this._lastPoint.y;
-    }
-
-    getLastX () {
-        return this._lastPoint.x;
-    }
-
     setKeys (keyCode, isDown) {
         this._keys[keyCode] = isDown;
-    }
 
-    getMaxMoveSpeed () {
-        return this._maxMoveSpeed;
+        return this;
     }
 
     update () {
