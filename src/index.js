@@ -1,6 +1,7 @@
 import './index.less';
 
 import 'pixi.js';
+import Stats from 'stats.js';
 
 import Controller from './common/Controller';
 import DisplayObject from './objects/DisplayObject';
@@ -13,6 +14,7 @@ const TextureCache = utils.TextureCache;
 
 loader
 .add('ground.png')
+.add('slope-left.png')
 .load(() => {
     const app = new Application({
         width: window.innerWidth,
@@ -22,6 +24,9 @@ loader
 
     renderer.autoResize = true;
     document.body.appendChild(view);
+
+    const stats = new Stats();
+    document.body.appendChild(stats.dom)
 
     let obj = new DisplayObject({
         x: 100,
@@ -41,8 +46,12 @@ loader
     stage.addChild(obj, ground);
 
     ticker.add(() => {
+        stats.begin();
+
         obj.update();
 
         ground.check(obj)
+
+        stats.end();
     })
 })

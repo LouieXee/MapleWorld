@@ -1,7 +1,7 @@
-import { Vector } from '../../utils';
-import { GRAVITY, MAX_DROP_SPEED, MAX_MOVE_SPEED } from '../../config';
+import { Vector, Events } from '../../utils';
+import { GRAVITY, MAX_DROP_SPEED, STATUS_STAND } from '../../config';
 
-const { Sprite, Graphics } = PIXI;
+const { Sprite, Graphics, Text } = PIXI;
 
 export default class DisplayObject extends Sprite {
 
@@ -11,7 +11,7 @@ export default class DisplayObject extends Sprite {
         const { 
             x = 0, 
             y = 0,
-            type = 'type-a',
+            type = 'others',
             character,
             debug = false,
         } = opt;
@@ -19,39 +19,67 @@ export default class DisplayObject extends Sprite {
         this.x = x;
         this.y = y;
         this._type = type;
+
         this._forces = {
             gravity: new Vector(0, GRAVITY)
         };
         this._velocity = new Vector(0, 0);
         this._lastPoint = { x: x, y: y };
         this._keys = {};
+        this._status = STATUS_STAND;
         this._setCharacter(character);
 
+        this._events = new Events();
         this._debug = debug;
 
         debug && this._setDebugMode();
     }
 
     _setCharacter (character) {
-        const { width, height, weight, animation } = character;
+        const { 
+            width, height, weight, animation, maxMoveSpeed 
+        } = character;
 
         this._character = character;
         this._width = width;
         this._height = height;
         this._weight = weight;
+        this._maxMoveSpeed = maxMoveSpeed;
     }
 
     _setDebugMode () {
-        let rectangle = new Graphics();
+        const LINE_HEIGHT = 20;
+        const COLOR = 0xFF0000;
+        const TEXT_STYLE = { fontSize: 12, fill: COLOR, lineHeight: LINE_HEIGHT };
 
-        rectangle.lineStyle(1, 0xFF0000, 1);
+        let rectangle = new Graphics();
+        let status = new Text(`status: ${this._status}`, TEXT_STYLE)
+
+        rectangle.lineStyle(1, COLOR, 1);
         rectangle.drawRect(-this._width / 2, -this._height, this._width, this._height);
 
-        this.addChild(rectangle)
+        status.x = -this._width / 2;
+        status.y = -this._height - LINE_HEIGHT;
+
+        this.addChild(rectangle, status)
+
+        this._events.on('upadteStatus', currentStatus => {
+            status.text = `status: ${currentStatus}`
+        })
     }
 
-    _handleKeys () {
-        this._character.handleKeys(this);
+    _updateStatus () {
+        let {
+            status,
+            forces,
+            velocity
+        } = this._character.handleStatus(this._keys, this._status, this._forces, this._velocity);
+
+        this._status = status;
+        this._forces = forces;
+        this._velocity = velocity;
+
+        this._events.emit('upadteStatus', status);
     }
 
     _handleVelocity () {
@@ -61,10 +89,13 @@ export default class DisplayObject extends Sprite {
             force.add(this._forces[key]);
         }
 
-        this._velocity.add(force.div(this._weight));
+        // 质量影响横向加速度
+        force.x /= this._weight;
 
-        if (Math.abs(this._velocity.x) > MAX_MOVE_SPEED) {
-            this._velocity.x = this._velocity.x > 0 ? MAX_MOVE_SPEED : -MAX_MOVE_SPEED;
+        this._velocity.add(force);
+
+        if (Math.abs(this._velocity.x) > this._maxMoveSpeed) {
+            this._velocity.x = this._velocity.x > 0 ? this._maxMoveSpeed : -this._maxMoveSpeed;
         }
 
         if (this._velocity.y > MAX_DROP_SPEED) {
@@ -117,7 +148,7 @@ export default class DisplayObject extends Sprite {
     }
 
     update () {
-        this._handleKeys();
+        this._updateStatus();
 
         this._handleVelocity();
 
