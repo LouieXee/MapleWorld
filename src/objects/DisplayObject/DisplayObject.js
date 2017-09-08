@@ -1,7 +1,7 @@
 import { Vector, Events } from '../../utils';
 import { GRAVITY, MAX_DROP_SPEED, STATUS_STAND } from '../../config';
 
-const { Sprite, Graphics, Text } = PIXI;
+const { Sprite, Graphics, Text, Point } = PIXI;
 
 export default class DisplayObject extends Sprite {
 
@@ -24,7 +24,7 @@ export default class DisplayObject extends Sprite {
             gravity: new Vector(0, GRAVITY)
         };
         this._velocity = new Vector(0, 0);
-        this._lastPoint = { x: x, y: y };
+        this._lastPoint = new Point(x, y);
         this._keys = {};
         this._status = STATUS_STAND;
         this._setCharacter(character);
@@ -53,15 +53,20 @@ export default class DisplayObject extends Sprite {
         const TEXT_STYLE = { fontSize: 12, fill: COLOR, lineHeight: LINE_HEIGHT };
 
         let rectangle = new Graphics();
+        let point = new Graphics();
         let status = new Text(`status: ${this._status}`, TEXT_STYLE)
 
         rectangle.lineStyle(1, COLOR, 1);
         rectangle.drawRect(-this._width / 2, -this._height, this._width, this._height);
 
+        point.beginFill(COLOR);
+        point.arc(0, 0, 2, 0, 2 * Math.PI);
+        point.endFill();
+
         status.x = -this._width / 2;
         status.y = -this._height - LINE_HEIGHT;
 
-        this.addChild(rectangle, status)
+        this.addChild(rectangle, point, status)
 
         this._events.on('upadteStatus', currentStatus => {
             status.text = `status: ${currentStatus}`
@@ -135,6 +140,10 @@ export default class DisplayObject extends Sprite {
         return this;
     }
 
+    getLastPoint () {
+        return this._lastPoint;
+    }
+
     getLastY () {
         return this._lastPoint.y;
     }
@@ -147,13 +156,16 @@ export default class DisplayObject extends Sprite {
         this._keys[keyCode] = isDown;
     }
 
+    getMaxMoveSpeed () {
+        return this._maxMoveSpeed;
+    }
+
     update () {
         this._updateStatus();
 
         this._handleVelocity();
 
-        this._lastPoint.x = this.x;
-        this._lastPoint.y = this.y;
+        this._lastPoint.set(this.x, this.y);
         this.x += this._velocity.x;
         this.y += this._velocity.y;
     }

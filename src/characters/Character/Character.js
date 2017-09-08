@@ -1,6 +1,5 @@
 import { Vector } from '../../utils';
 import { 
-    DROP_SPEED_TO_BE_AIR,
     KEY_MOVE_LEFT, KEY_MOVE_UP, KEY_MOVE_RIGHT, KEY_MOVE_DOWN, 
     KEY_JUMP, KEY_ATTACK,
     STATUS_STAND, STATUS_MOVE, STATUS_AIR, STATUS_ATTACK, STATUS_HIT, STATUS_DEAD
@@ -15,7 +14,7 @@ export default class Character {
             weight = 1,
             animation = {},
             maxMoveSpeed = 3,
-            jumpVelocity = new Vector(0, -8),
+            jumpVelocity = new Vector(0, -15),
             moveForce = new Vector(1, 0)
         } = opt;
 
@@ -40,13 +39,13 @@ export default class Character {
         }
 
         // 移动
-        if ((keys[KEY_MOVE_LEFT] || keys[KEY_MOVE_RIGHT]) && status != STATUS_AIR) {
+        if ((keys[KEY_MOVE_LEFT] || keys[KEY_MOVE_RIGHT]) && resultForce.y == 0) {
             keys[KEY_MOVE_LEFT] && (forces['moveLeft'] = this.moveForce.clone().invertX());
             keys[KEY_MOVE_RIGHT] && (forces['moveRight'] = this.moveForce.clone());
         }
 
         // 停止移动
-        if ((!keys[KEY_MOVE_LEFT] || !keys[KEY_MOVE_RIGHT]) && status != STATUS_AIR) {
+        if ((!keys[KEY_MOVE_LEFT] || !keys[KEY_MOVE_RIGHT]) && resultForce.y == 0) {
             !keys[KEY_MOVE_LEFT] && (delete forces['moveLeft']);
             !keys[KEY_MOVE_RIGHT] && (delete forces['moveRight']);
 
@@ -56,7 +55,7 @@ export default class Character {
         }
 
         // 跳跃
-        if (keys[KEY_JUMP] && (status == STATUS_STAND || status == STATUS_MOVE)) {
+        if (keys[KEY_JUMP] && resultForce.y == 0) {
             velocity.add(this.jumpVelocity);
         }
 
@@ -65,10 +64,12 @@ export default class Character {
 
             delete forces['moveLeft'];
             delete forces['moveRight'];
-        } else if (resultForce.x != 0) {
-            status = STATUS_MOVE;
         } else {
             status = STATUS_STAND;
+        } 
+
+        if (status == STATUS_STAND && currentVelocity.x != 0) {
+            status = STATUS_MOVE;
         }
 
         return {
