@@ -41,11 +41,6 @@ export default class Character {
         if ((!keys[KEY_MOVE_LEFT] || !keys[KEY_MOVE_RIGHT]) && composedForce.y == 0) {
             !keys[KEY_MOVE_LEFT] && obj.removeForce('moveLeft');
             !keys[KEY_MOVE_RIGHT] && obj.removeForce('moveRight');
-
-            // TODO 添加摩擦力
-            if (!obj._forces['moveLeft'] && !obj._forces['moveRight']) {
-                obj.setVelocityX(0);
-            }
         }
 
         // 跳跃
@@ -64,8 +59,6 @@ export default class Character {
         if (obj._status == STATUS_STAND && obj.getVelocity().x != 0) {
             obj._status = STATUS_MOVE;
         }
-
-        console.log(obj._forces)
     }
 
 }

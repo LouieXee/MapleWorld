@@ -55,6 +55,8 @@ export default class DisplayObject extends Sprite {
         let rectangle = new Graphics();
         let point = new Graphics();
         let status = new Text(`STATUS: ${this._status}`, TEXT_STYLE)
+        let velocity = new Text(`VEL: x: 0, y: 0`, TEXT_STYLE);
+        let force = new Text(`FORCE: x: 0, y: 0`, TEXT_STYLE);
 
         rectangle.lineStyle(1, COLOR, 1);
         rectangle.drawRect(-this._width / 2, -this._height, this._width, this._height);
@@ -65,11 +67,19 @@ export default class DisplayObject extends Sprite {
 
         status.x = -this._width / 2;
         status.y = -this._height - LINE_HEIGHT;
+        velocity.x = -this._width / 2;
+        velocity.y = -this._height - 2 * LINE_HEIGHT;
+        force.x = -this._width / 2;
+        force.y = -this._height - 3 * LINE_HEIGHT;
 
-        this.addChild(rectangle, point, status)
+        this.addChild(rectangle, point, status, velocity, force)
 
-        this._events.on('upadteStatus', currentStatus => {
-            status.text = `STATUS: ${currentStatus}`
+        this._events.on('upadteStatus', () => {
+            let composedForce = this.composeForce();
+
+            status.text = `STATUS: ${this._status}`;
+            velocity.text = `VEL: x: ${this._velocity.x.toFixed(2)}, y: ${this._velocity.y.toFixed(2)}`;
+            force.text = `FORCE: x: ${composedForce.x.toFixed(2)}, y: ${composedForce.y.toFixed(2)}`;
         })
     }
 
@@ -81,8 +91,15 @@ export default class DisplayObject extends Sprite {
 
     _handleVelocity () {
         let force = this.composeForce();
+        let lastVelocityX = this._velocity.x;
 
         this._velocity.add(force.div(this._weight));
+
+        // 摩擦力作用使速度降到0，同时移除摩擦力
+        if (!!this._forces['friction'] && (this._velocity.x == 0 || this._velocity.x * lastVelocityX < 0)) {
+            this.removeForce('friction');
+            this._velocity.x = 0;
+        }
 
         if (Math.abs(this._velocity.x) > this._maxMoveSpeed) {
             this._velocity.x = this._velocity.x > 0 ? this._maxMoveSpeed : -this._maxMoveSpeed;
@@ -104,7 +121,11 @@ export default class DisplayObject extends Sprite {
             return this;
         }
 
-        this._forces[key] = new Vector(fx, fy).setTag(tag);
+        let force = new Vector(fx, fy);
+
+        tag && force.setTag(tag);
+
+        this._forces[key] = force;
 
         return this;
     }
@@ -144,6 +165,10 @@ export default class DisplayObject extends Sprite {
 
     getMaxMoveSpeed () {
         return this._maxMoveSpeed;
+    }
+
+    getWeight () {
+        return this._weight;
     }
 
     getWidth () {
