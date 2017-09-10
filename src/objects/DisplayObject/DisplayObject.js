@@ -19,15 +19,15 @@ export default class DisplayObject extends Sprite {
         this.x = x;
         this.y = y;
         this._type = type;
+        this._setCharacter(character);
 
         this._forces = {
-            gravity: new Vector(0, GRAVITY)
+            gravity: new Vector(0, GRAVITY * this._weight)
         };
         this._velocity = new Vector(0, 0);
         this._lastPoint = new Point(x, y);
         this._keys = {};
         this._status = STATUS_STAND;
-        this._setCharacter(character);
 
         this._events = new Events();
         this._debug = debug;
@@ -74,26 +74,15 @@ export default class DisplayObject extends Sprite {
     }
 
     _updateStatus () {
-        let {
-            status,
-            forces,
-            velocity
-        } = this._character.handleStatus(this._keys, this._status, this._forces, this._velocity);
+        this._character.handleStatus(this);
 
-        this._status = status;
-        this._forces = forces;
-        this._velocity = velocity;
-
-        this._events.emit('upadteStatus', status);
+        this._events.emit('upadteStatus', this._status);
     }
 
     _handleVelocity () {
-        let force = this.getResultForce();
+        let force = this.composeForce();
 
-        // 质量影响横向加速度
-        force.x /= this._weight;
-
-        this._velocity.add(force);
+        this._velocity.add(force.div(this._weight));
 
         if (Math.abs(this._velocity.x) > this._maxMoveSpeed) {
             this._velocity.x = this._velocity.x > 0 ? this._maxMoveSpeed : -this._maxMoveSpeed;
@@ -104,8 +93,25 @@ export default class DisplayObject extends Sprite {
         }
     }
 
-    addForce (key, fx, fy) {
-        this._forces[key] = new Vector(fx, fy);
+    addForce (key, fx, fy, tag) {
+        if (this._forces[key]) {
+            return this;
+        }
+
+        if (fx instanceof Vector) {
+            this._forces[key] = fx;
+
+            return this;
+        }
+
+        this._forces[key] = new Vector(fx, fy).setTag(tag);
+
+        return this;
+    }
+
+    setForce (key, fx, fy) {
+        this._forces[key].x = fx;
+        this._forces[key].y = fy;
 
         return this;
     }
@@ -116,11 +122,17 @@ export default class DisplayObject extends Sprite {
         return this;
     }
 
-    getMaxMoveSpeed () {
-        return this._maxMoveSpeed;
+    removeForcesByTag (tag) {
+        for (let key in this._forces) {
+            if (this._forces[key].getTag() == tag) {
+                delete this._forces[key];
+            }
+        }
+
+        return this;
     }
 
-    getResultForce () {
+    composeForce () {
         let force = new Vector(0, 0);
 
         for (let key in this._forces) {
@@ -128,6 +140,18 @@ export default class DisplayObject extends Sprite {
         }
 
         return force;
+    }
+
+    getMaxMoveSpeed () {
+        return this._maxMoveSpeed;
+    }
+
+    getWidth () {
+        return this._width;
+    }
+
+    getHeight () {
+        return this._height;
     }
 
     getLastPoint () {

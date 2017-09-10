@@ -13,9 +13,9 @@ export default class Character {
             height = 100,
             weight = 1,
             animation = {},
-            maxMoveSpeed = 3,
+            maxMoveSpeed = 5,
             jumpVelocity = new Vector(0, -15),
-            moveForce = new Vector(1, 0)
+            moveForce = new Vector(1, 0).setTag('horizontal')
         } = opt;
 
         this.width = width;
@@ -27,56 +27,45 @@ export default class Character {
         this.maxMoveSpeed = maxMoveSpeed;
     }
 
-    handleStatus (keys, currentStatus, currentForces, currentVelocity) {
-        let status = currentStatus;
-        let forces = { ...currentForces };
-        let velocity = currentVelocity.clone();
-        let resultForce = new Vector(0, 0);
-
-        // 计算合力
-        for (let key in forces) {
-            resultForce.add(forces[key]);
-        }
+    handleStatus (obj) {
+        let keys = obj._keys;
+        let composedForce = obj.composeForce();
 
         // 移动
-        if ((keys[KEY_MOVE_LEFT] || keys[KEY_MOVE_RIGHT]) && resultForce.y == 0) {
-            keys[KEY_MOVE_LEFT] && (forces['moveLeft'] = this.moveForce.clone().invertX());
-            keys[KEY_MOVE_RIGHT] && (forces['moveRight'] = this.moveForce.clone());
+        if ((keys[KEY_MOVE_LEFT] || keys[KEY_MOVE_RIGHT]) && composedForce.y == 0) {
+            keys[KEY_MOVE_LEFT] &&  obj.addForce('moveLeft', this.moveForce.clone().invertX());
+            keys[KEY_MOVE_RIGHT] && obj.addForce('moveRight', this.moveForce.clone());
         }
 
         // 停止移动
-        if ((!keys[KEY_MOVE_LEFT] || !keys[KEY_MOVE_RIGHT]) && resultForce.y == 0) {
-            !keys[KEY_MOVE_LEFT] && (delete forces['moveLeft']);
-            !keys[KEY_MOVE_RIGHT] && (delete forces['moveRight']);
+        if ((!keys[KEY_MOVE_LEFT] || !keys[KEY_MOVE_RIGHT]) && composedForce.y == 0) {
+            !keys[KEY_MOVE_LEFT] && obj.removeForce('moveLeft');
+            !keys[KEY_MOVE_RIGHT] && obj.removeForce('moveRight');
 
-            if (!forces['moveLeft'] && !forces['moveRight']) {
-                velocity.x = 0;
+            // TODO 添加摩擦力
+            if (!obj._forces['moveLeft'] && !obj._forces['moveRight']) {
+                obj.setVelocityX(0);
             }
         }
 
         // 跳跃
-        if (keys[KEY_JUMP] && resultForce.y == 0) {
-            velocity.add(this.jumpVelocity);
+        if (keys[KEY_JUMP] && composedForce.y == 0) {
+            obj.getVelocity().add(this.jumpVelocity);
         }
 
-        if (resultForce.y != 0) {
-            status = STATUS_AIR;
+        if (composedForce.y != 0) {
+            obj._status = STATUS_AIR;
 
-            delete forces['moveLeft'];
-            delete forces['moveRight'];
+            obj.removeForcesByTag('horizontal')
         } else {
-            status = STATUS_STAND;
+            obj._status = STATUS_STAND;
         } 
 
-        if (status == STATUS_STAND && currentVelocity.x != 0) {
-            status = STATUS_MOVE;
+        if (obj._status == STATUS_STAND && obj.getVelocity().x != 0) {
+            obj._status = STATUS_MOVE;
         }
 
-        return {
-            status,
-            forces,
-            velocity
-        };
+        console.log(obj._forces)
     }
 
 }

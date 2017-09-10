@@ -8,6 +8,7 @@ import DisplayObject from './objects/DisplayObject';
 import Character from './characters/Character';
 import Ground from './map/Ground';
 import Slope from './map/Slope';
+import Wall from './map/Wall';
 
 const { loader, Application, utils } = PIXI;
 
@@ -23,6 +24,8 @@ loader
 .add('ground.png')
 .add('slope-left.png')
 .add('slope-right.png')
+.add('wall-left.png')
+.add('wall-right.png')
 .add('background.png')
 .load(() => {
     const app = new Application({
@@ -47,7 +50,7 @@ loader
 
     let textureGround = TextureCache['ground.png'];
 
-    let grounds = [
+    let verticalTiles = [
         new Ground({
             x: 0,
             y: 500,
@@ -115,18 +118,54 @@ loader
             debug: DEBUG,
             showTexture: SHOW_TEXTURE,
             texture: TextureCache['slope-right.png']
-        }),
-    ]
+        })
+    ];
 
-    stage.addChild(...grounds, obj);
+    let horizontalTiles = [
+        new Wall({
+            x: 10,
+            y: 61,
+            size: 4,
+            type: 'right',
+            debug: DEBUG,
+            showTexture: SHOW_TEXTURE,
+            texture: TextureCache['wall-right.png']
+        }),
+        new Wall({
+            x: 10,
+            y: 381,
+            size: 2,
+            type: 'right',
+            debug: DEBUG,
+            showTexture: SHOW_TEXTURE,
+            texture: TextureCache['wall-right.png']
+        }),
+        new Wall({
+            x: 800,
+            y: 201,
+            size: 4,
+            type: 'left',
+            debug: DEBUG,
+            showTexture: SHOW_TEXTURE,
+            texture: TextureCache['wall-left.png']
+        })
+    ];
+
+    stage.addChild(...verticalTiles, ...horizontalTiles, obj);
 
     ticker.add(() => {
         stats.begin();
 
         obj.update();
 
-        for (let ground of grounds) {
-            if (ground.check(obj)) {
+        for (let horizontal of horizontalTiles) {
+            if (horizontal.check(obj)) {
+                break;
+            }
+        }
+
+        for (let vertical of verticalTiles) {
+            if (vertical.check(obj)) {
                 break;
             }
         }

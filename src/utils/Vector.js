@@ -5,6 +5,17 @@ export class Vector {
     constructor (x, y) {
         this.x = x;
         this.y = y;
+        this._tag = 'none';
+    }
+
+    setTag (tag) {
+        this._tag = tag;
+
+        return this;
+    }
+
+    getTag () {
+        return this._tag;
     }
 
     add (vector) {
@@ -61,7 +72,7 @@ export class Vector {
     }
 
     clone() {
-        return new Vector(this.x, this.y);
+        return new Vector(this.x, this.y).setTag(this._tag);
     }
 
 }

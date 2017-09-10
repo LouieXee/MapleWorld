@@ -13,3 +13,5 @@ export const SLOPE_HEIGHT = 86;
 export const SLOPE_LEFT_VALUE = - 2 / 3;
 
 export const SLOPE_RIGHT_VALUE = 2 / 3;
+
+export const WALL_HEIGHT = 60;
