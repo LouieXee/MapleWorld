@@ -1,6 +1,6 @@
 import MapTiles from '../MapTiles';
 
-import { WALL_HEIGHT } from '../../config';
+import { WALL_HEIGHT, GROUND_HEIGHT } from '../../config';
 
 const { TilingSprite } = PIXI.extras;
 
@@ -20,7 +20,7 @@ export default class Wall extends MapTiles {
 
         super({
             ...rest,
-            height: size * wallHeight,
+            height: size * wallHeight + GROUND_HEIGHT,
             tilesType: type,
             lineFunction: y => 0
         });
@@ -35,6 +35,8 @@ export default class Wall extends MapTiles {
         let sprite = new TilingSprite(texture, texture.width, size * texture.height);
 
         type == 'left' && (sprite.x = -texture.width);
+
+        sprite.y = GROUND_HEIGHT
 
         this.addChild(sprite);
     }

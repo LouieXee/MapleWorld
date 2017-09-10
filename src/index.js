@@ -124,7 +124,7 @@ loader
     let horizontalTiles = [
         new Wall({
             x: 10,
-            y: 61,
+            y: 34,
             size: 4,
             type: 'right',
             debug: DEBUG,
@@ -133,7 +133,7 @@ loader
         }),
         new Wall({
             x: 10,
-            y: 381,
+            y: 354,
             size: 2,
             type: 'right',
             debug: DEBUG,
@@ -142,7 +142,7 @@ loader
         }),
         new Wall({
             x: 800,
-            y: 201,
+            y: 174,
             size: 4,
             type: 'left',
             debug: DEBUG,
