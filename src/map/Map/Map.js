@@ -104,8 +104,8 @@ export default class Map extends Container {
     _followPlayer (player) {
         let viewSize = Store.getViewSize();
 
-        if (viewSize.width - this._width < 0) {
-            let expectedX = viewSize.width - player.position.x;
+        if (viewSize.width < this._width) {
+            let expectedX = viewSize.width / 2 - player.position.x;
 
             expectedX > 0 && (expectedX = 0);
             expectedX < (viewSize.width - this._width) && (expectedX = viewSize.width - this._width);
@@ -113,8 +113,8 @@ export default class Map extends Container {
             this.x = expectedX;
         }
 
-        if (viewSize.height - this._height < 0) {
-            let expectedY = viewSize.height - player.position.y;
+        if (viewSize.height < this._height) {
+            let expectedY = viewSize.height / 2 - player.position.y;
 
             expectedY > 0 && (expectedY = 0);
             expectedY < (viewSize.height - this._height) && (expectedY = viewSize.height - this._height);
