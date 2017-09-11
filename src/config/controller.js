@@ -9,3 +9,7 @@ export const KEY_MOVE_DOWN = 40;
 export const KEY_JUMP = 90;
 
 export const KEY_ATTACK = 88;
+
+export const KEY_SKILL1 = 65;
+
+export const KEY_SKILL2 = 83;

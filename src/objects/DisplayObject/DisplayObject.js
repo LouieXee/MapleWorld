@@ -12,25 +12,31 @@ export default class DisplayObject extends Sprite {
             x = 0, 
             y = 0,
             type = 'others',
+            id,
+            name,
             character,
             debug = false,
         } = opt;
         
         this.x = x;
         this.y = y;
+        this._lastPoint = new Point(x, y);
         this._type = type;
+        this._id = id;
+        this._name = name;
         this._setCharacter(character);
 
-        this._forces = {
-            gravity: new Vector(0, GRAVITY * this._weight)
-        };
+        this._dir = 'left';
+        this._forces = { gravity: new Vector(0, GRAVITY * this._weight) };
         this._velocity = new Vector(0, 0);
-        this._lastPoint = new Point(x, y);
+        this._lastVelocity = this._velocity.clone();
         this._keys = {};
         this._status = STATUS_STAND;
 
         this._events = new Events();
         this._debug = debug;
+
+        this._updateComposedForce();
 
         debug && this._setDebugMode();
     }
@@ -57,6 +63,8 @@ export default class DisplayObject extends Sprite {
         let status = new Text(`STATUS: ${this._status}`, TEXT_STYLE)
         let velocity = new Text(`VEL: x: 0, y: 0`, TEXT_STYLE);
         let force = new Text(`FORCE: x: 0, y: 0`, TEXT_STYLE);
+        let dir = new Text(`DIR: ${this._dir}`, TEXT_STYLE);
+        let texts = [velocity, force, status, dir];
 
         rectangle.lineStyle(1, COLOR, 1);
         rectangle.drawRect(-this._width / 2, -this._height, this._width, this._height);
@@ -65,43 +73,32 @@ export default class DisplayObject extends Sprite {
         point.arc(0, 0, 2, 0, 2 * Math.PI);
         point.endFill();
 
-        status.x = -this._width / 2;
-        status.y = -this._height - LINE_HEIGHT;
-        velocity.x = -this._width / 2;
-        velocity.y = -this._height - 2 * LINE_HEIGHT;
-        force.x = -this._width / 2;
-        force.y = -this._height - 3 * LINE_HEIGHT;
+        texts.forEach((text, index) => {
+            text.x = -this._width / 2;
+            text.y = -this._height - (index + 1) * LINE_HEIGHT;
+        })
 
-        this.addChild(rectangle, point, status, velocity, force)
+        this.addChild(rectangle, point, ...texts)
 
         this._events.on('upadteStatus', () => {
-            let composedForce = this.composeForce();
-
             status.text = `STATUS: ${this._status}`;
             velocity.text = `VEL: x: ${this._velocity.x.toFixed(2)}, y: ${this._velocity.y.toFixed(2)}`;
-            force.text = `FORCE: x: ${composedForce.x.toFixed(2)}, y: ${composedForce.y.toFixed(2)}`;
+            force.text = `FORCE: x: ${this._composedForce.x.toFixed(2)}, y: ${this._composedForce.y.toFixed(2)}`;
+            dir.text = `DIR: ${this._dir.toUpperCase()}`;
         })
     }
 
     _updateStatus () {
         this._character.handleStatus(this);
 
-        this._events.emit('upadteStatus', this._status);
+        this._events.emit('upadteStatus');
     }
 
     _handleVelocity () {
-        let force = this.composeForce();
-        let lastVelocityX = this._velocity.x;
+        this._lastVelocity = this._velocity.clone();
+        this._velocity.add(this._composedForce.div(this._weight));
 
-        this._velocity.add(force.div(this._weight));
-
-        // 摩擦力作用使速度降到0，同时移除摩擦力
-        if (!!this._forces['friction'] && (this._velocity.x == 0 || this._velocity.x * lastVelocityX < 0)) {
-            this.removeForce('friction');
-            this._velocity.x = 0;
-        }
-
-        if (Math.abs(this._velocity.x) > this._maxMoveSpeed) {
+        if (this._composedForce.y == 0 && this._composedForce.x * this._velocity.x >=0 &&  Math.abs(this._velocity.x) > this._maxMoveSpeed) {
             this._velocity.x = this._velocity.x > 0 ? this._maxMoveSpeed : -this._maxMoveSpeed;
         }
 
@@ -110,35 +107,41 @@ export default class DisplayObject extends Sprite {
         }
     }
 
+    _updateComposedForce () {
+        let force = new Vector(0, 0);
+
+        for (let key in this._forces) {
+            force.add(this._forces[key]);
+        }
+
+        this._composedForce = force;
+    }
+
     addForce (key, fx, fy, tag) {
         if (this._forces[key]) {
             return this;
         }
 
+        let force = null;
+
         if (fx instanceof Vector) {
-            this._forces[key] = fx;
-
-            return this;
+            force = fx;
+        } else {
+            force = new Vector(fx, fy);
         }
-
-        let force = new Vector(fx, fy);
 
         tag && force.setTag(tag);
 
         this._forces[key] = force;
-
-        return this;
-    }
-
-    setForce (key, fx, fy) {
-        this._forces[key].x = fx;
-        this._forces[key].y = fy;
+        this._updateComposedForce();
 
         return this;
     }
 
     removeForce (key) {
         delete this._forces[key];
+
+        this._updateComposedForce();
 
         return this;
     }
@@ -150,25 +153,29 @@ export default class DisplayObject extends Sprite {
             }
         }
 
+        this._updateComposedForce();
+
         return this;
     }
 
-    composeForce () {
-        let force = new Vector(0, 0);
-
-        for (let key in this._forces) {
-            force.add(this._forces[key]);
-        }
-
-        return force;
+    hasForce (key) {
+        return !!this._forces[key];
     }
 
-    getMaxMoveSpeed () {
-        return this._maxMoveSpeed;
+    getName () {
+        return this._name;
+    }
+
+    getId () {
+        return this._id;
     }
 
     getWeight () {
         return this._weight;
+    }
+
+    getStatus () {
+        return this._status;
     }
 
     getWidth () {
@@ -183,8 +190,30 @@ export default class DisplayObject extends Sprite {
         return this._lastPoint;
     }
 
+    getLastVelocity () {
+        return this._lastVelocity.clone();
+    }
+
     getVelocity () {
-        return this._velocity;
+        return this._velocity.clone();
+    }
+
+    getComposedForce () {
+        return this._composedForce.clone();
+    }
+
+    getDir () {
+        return this._dir;
+    }
+
+    getKeys () {
+        return this._keys;
+    }
+
+    addVelocity (v) {
+        this._velocity.add(v);
+
+        return this;
     }
 
     setVelocityY (vy) {
@@ -201,6 +230,18 @@ export default class DisplayObject extends Sprite {
 
     setKeys (keyCode, isDown) {
         this._keys[keyCode] = isDown;
+
+        return this;
+    }
+
+    setStatus (status) {
+        this._status = status;
+
+        return this;
+    }
+
+    setDir (dir) {
+        this._dir = dir;
 
         return this;
     }

@@ -4,6 +4,7 @@ import { SLOPE_GROUND_DELTA, SLOPE_WIDTH, SLOPE_HEIGHT, SLOPE_LEFT_VALUE, SLOPE_
 
 const { Sprite } = PIXI;
 const { ParticleContainer } = PIXI.particles;
+const { TextureCache } = PIXI.utils;
 
 export default class Slope extends MapTiles {
 
@@ -41,11 +42,11 @@ export default class Slope extends MapTiles {
                 return [i * slopeWidth, i * (slopeHeight - deltaHeight)];
             }
         );
-
-        this._debug && this._setDebugMode();
     }
 
     _setSlopTexture (size, texture, getPositionByIndex) {
+        texture = TextureCache[texture];
+
         let container = new ParticleContainer();
 
         for (let i = 0; i < size; i++) {
@@ -58,7 +59,7 @@ export default class Slope extends MapTiles {
             container.addChild(slope);
         }
 
-        this.addChild(container);
+        this.addChildAt(container, 0);
     }
 
 }

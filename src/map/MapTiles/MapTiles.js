@@ -1,6 +1,8 @@
 const { Sprite, Graphics, particles } = PIXI;
 const { ParticleContainer } = particles;
 
+const DELTA = .1;
+
 export default class MapTiles extends Sprite {
 
     constructor (opt) {
@@ -25,10 +27,12 @@ export default class MapTiles extends Sprite {
         this._friction = friction;
         this._lineFunction = lineFunction;
 
-        this._forcesKey = (tilesType == 'bottom' || tilesType == 'top') && 'bottomOrTop'
-                        || (tilesType == 'left' || tilesType == 'right') && 'leftOrRight'
+        this._forcesKey = (tilesType == 'bottom' || tilesType == 'top') && 'vertical'
+                        || (tilesType == 'left' || tilesType == 'right') && 'horizontal'
 
         this._debug = debug;
+
+        debug && this._setDebugMode();
     }
 
     _setDebugMode () {
@@ -48,21 +52,24 @@ export default class MapTiles extends Sprite {
         this.addChild(line);
     }
 
-    /*
-        @description 因为toLocal和toGlobal的转化会有小数点后数位的差异以及上坡时的特殊处理，所以在最后比较时会有一个maxMoveSpeed的上下浮动
-    */
     check (obj) {
         let _this = this;
         let forcesKey = this._forcesKey;
 
         if (this._tilesType == 'bottom' && obj.x >= this.x && obj.x <= this.x + this._width && obj.getVelocity().y >= 0) {
-            let { localLastPoint, localCurrentPoint, lastTargetValue, currentTargetValue, composedForce } = _getBasicData(forcesKey);
+            let { localLastPoint, localCurrentPoint, lastTargetValue, currentTargetValue, delta } = _getBasicData(forcesKey);
 
-            if (localLastPoint.y <= lastTargetValue + obj.getMaxMoveSpeed() && localCurrentPoint.y >= currentTargetValue - obj.getMaxMoveSpeed()) {
+            if (localLastPoint.y <= lastTargetValue + delta && localCurrentPoint.y >= currentTargetValue - delta) {
+                let composedForce = obj.getComposedForce();
+
                 _handleObj(forcesKey, composedForce, localCurrentPoint, currentTargetValue);
 
-                // 当物体正在移动则添加摩擦力
-                if (obj.getVelocity().x != 0) {
+                if (obj.hasForce('friction') && (obj.getVelocity().x == 0 || obj.getVelocity().x * obj.getLastVelocity().x < 0)) {
+                    // 摩擦力作用使速度降到0，同时移除摩擦力
+                    obj.removeForce('friction');
+                    obj.setVelocityX(0);
+                } else if (!obj.hasForce('friction') && obj.getVelocity().x != 0) {
+                    // 当物体受力则添加摩擦力
                     let frictionX = composedForce.x == 0 ? obj.getWeight() * this._friction
                                     : Math.min(Math.abs(composedForce.x), obj.getWeight() * this._friction);
 
@@ -77,27 +84,27 @@ export default class MapTiles extends Sprite {
                 return true;
             }
         } else if (this._tilesType == 'top' && obj.x >= this.x && obj.x <= this.x + this._width && obj.getVelocity().y <= 0) {
-            let { localLastPoint, localCurrentPoint, lastTargetValue, currentTargetValue, composedForce } = _getBasicData(forcesKey);
+            let { localLastPoint, localCurrentPoint, lastTargetValue, currentTargetValue, delta } = _getBasicData(forcesKey);
             let objHeight = obj.getHeight();
 
-            if (localLastPoint.y - objHeight >= lastTargetValue - obj.getMaxMoveSpeed() && localCurrentPoint.y - objHeight <= currentTargetValue + obj.getMaxMoveSpeed()) {
-                _handleObj(forcesKey, composedForce, localCurrentPoint, currentTargetValue + objHeight);
+            if (localLastPoint.y - objHeight >= lastTargetValue - delta && localCurrentPoint.y - objHeight <= currentTargetValue + delta) {
+                _handleObj(forcesKey, obj.getComposedForce(), localCurrentPoint, currentTargetValue + objHeight);
 
                 return true;
             }
         } else if (this._tilesType == 'left' && obj.y >= this.y && obj.y <= this.y + this._height && obj.getVelocity().x >= 0) {
-            let { localLastPoint, localCurrentPoint, lastTargetValue, currentTargetValue, composedForce } = _getBasicData(forcesKey);
+            let { localLastPoint, localCurrentPoint, lastTargetValue, currentTargetValue, delta } = _getBasicData(forcesKey);
 
-            if (localLastPoint.x <= lastTargetValue + Math.abs(obj.getVelocity().x) && localCurrentPoint.x >= currentTargetValue - Math.abs(obj.getVelocity().x)) {
-                _handleObj(forcesKey, composedForce, localCurrentPoint, currentTargetValue);
+            if (localLastPoint.x <= lastTargetValue + delta && localCurrentPoint.x >= currentTargetValue - delta) {
+                _handleObj(forcesKey, obj.getComposedForce(), localCurrentPoint, currentTargetValue);
 
                 return true;
             }
         } else if (this._tilesType == 'right' && obj.y >= this.y && obj.y <= this.y + this._height && obj.getVelocity().x <= 0) {
-            let { localLastPoint, localCurrentPoint, lastTargetValue, currentTargetValue, composedForce } = _getBasicData(forcesKey);
+            let { localLastPoint, localCurrentPoint, lastTargetValue, currentTargetValue, delta } = _getBasicData(forcesKey);
 
-            if (localLastPoint.x >= lastTargetValue - Math.abs(obj.getVelocity().x) && localCurrentPoint.x <= currentTargetValue + Math.abs(obj.getVelocity().x)) {
-                _handleObj(forcesKey, composedForce, localCurrentPoint, currentTargetValue);
+            if (localLastPoint.x >= lastTargetValue - delta && localCurrentPoint.x <= currentTargetValue + delta) {
+                _handleObj(forcesKey, obj.getComposedForce(), localCurrentPoint, currentTargetValue);
 
                 return true;
             }
@@ -109,36 +116,43 @@ export default class MapTiles extends Sprite {
         return false;
 
         function _getBasicData (type) {
-            let localLastPoint = _this.toLocal(obj.getLastPoint());
-            let localCurrentPoint = _this.toLocal(obj.position);
-            let lastTargetValue = _this._lineFunction(type == 'bottomOrTop' ? localLastPoint.x : localLastPoint.y);
-            let currentTargetValue = _this._lineFunction(type == 'bottomOrTop' ? localCurrentPoint.x : localCurrentPoint.y);
-            let composedForce = obj.composeForce();
+            let localLastPoint = _this.toLocal(obj.getLastPoint(), _this.parent);
+            let localCurrentPoint = _this.toLocal(obj.position, _this.parent);
+            let lastTargetValue = _this._lineFunction(type == 'vertical' ? localLastPoint.x : localLastPoint.y);
+            let currentTargetValue = _this._lineFunction(type == 'vertical' ? localCurrentPoint.x : localCurrentPoint.y);
+            /*
+                1. 因为toLocal和toGlobal的转化会有小数点后数位的差异
+                2. 上坡处理
+                3. 下坡处理
+
+                所以在最后比较时会有一个上下浮动
+            */
+            let delta = obj.getVelocity().length() + DELTA;
 
             return {
                 localLastPoint,
                 localCurrentPoint,
                 lastTargetValue,
                 currentTargetValue,
-                composedForce
+                delta
             };
         }
 
         function _handleObj (type, composedForce, localCurrentPoint, targetValue) {
-            if (type == 'bottomOrTop') {
+            if (type == 'vertical') {
                 obj
                 .addForce(type, 0, -composedForce.y, 'vertical')
                 .setVelocityY(0);
 
                 localCurrentPoint.y = targetValue;
-                obj.y = _this.toGlobal(localCurrentPoint).y;
-            } else if (type == 'leftOrRight') {
+                obj.y = _this.parent.toLocal(localCurrentPoint, _this).y;
+            } else if (type == 'horizontal') {
                 obj
                 .addForce(type, -composedForce.x, 0, 'horizontal')
                 .setVelocityX(0);
 
                 localCurrentPoint.x = targetValue;
-                obj.x = _this.toGlobal(localCurrentPoint).x;
+                obj.x = _this.parent.toLocal(localCurrentPoint, _this).x;
             }
         }
     }
