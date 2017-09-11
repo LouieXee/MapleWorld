@@ -27,8 +27,8 @@ export default class MapTiles extends Sprite {
         this._friction = friction;
         this._lineFunction = lineFunction;
 
-        this._forcesKey = (tilesType == 'bottom' || tilesType == 'top') && 'vertical'
-                        || (tilesType == 'left' || tilesType == 'right') && 'horizontal'
+        this._forcesKey = (tilesType == 'bottom' || tilesType == 'top') && 'vertical-pressure'
+                        || (tilesType == 'left' || tilesType == 'right') && 'horizontal-pressure'
 
         this._debug = debug;
 
@@ -118,8 +118,8 @@ export default class MapTiles extends Sprite {
         function _getBasicData (type) {
             let localLastPoint = _this.toLocal(obj.getLastPoint(), _this.parent);
             let localCurrentPoint = _this.toLocal(obj.position, _this.parent);
-            let lastTargetValue = _this._lineFunction(type == 'vertical' ? localLastPoint.x : localLastPoint.y);
-            let currentTargetValue = _this._lineFunction(type == 'vertical' ? localCurrentPoint.x : localCurrentPoint.y);
+            let lastTargetValue = _this._lineFunction(type == 'vertical-pressure' ? localLastPoint.x : localLastPoint.y);
+            let currentTargetValue = _this._lineFunction(type == 'vertical-pressure' ? localCurrentPoint.x : localCurrentPoint.y);
             /*
                 1. 因为toLocal和toGlobal的转化会有小数点后数位的差异
                 2. 上坡处理
@@ -139,16 +139,16 @@ export default class MapTiles extends Sprite {
         }
 
         function _handleObj (type, composedForce, localCurrentPoint, targetValue) {
-            if (type == 'vertical') {
+            if (type == 'vertical-pressure') {
                 obj
-                .addForce(type, 0, -composedForce.y, 'vertical')
+                .addForce(type, 0, -composedForce.y, 'vertical-pressure')
                 .setVelocityY(0);
 
                 localCurrentPoint.y = targetValue;
                 obj.y = _this.parent.toLocal(localCurrentPoint, _this).y;
-            } else if (type == 'horizontal') {
+            } else if (type == 'horizontal-pressure') {
                 obj
-                .addForce(type, -composedForce.x, 0, 'horizontal')
+                .addForce(type, -composedForce.x, 0, 'horizontal-pressure')
                 .setVelocityX(0);
 
                 localCurrentPoint.x = targetValue;

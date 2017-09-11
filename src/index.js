@@ -6,6 +6,8 @@ import Stats from 'stats.js';
 import Store from './common/Store';
 import Controller from './common/Controller';
 import DisplayObject from './objects/DisplayObject';
+import Robot from './objects/Robot';
+import Character from './characters/Character';
 import Ninja from './characters/Ninja';
 import Map from './map/Map';
 
@@ -20,7 +22,7 @@ const SHOW_TEXTURE = true;
 // const SHOW_TEXTURE = false;
 
 const MAP_CONFIG = {
-    width: 1000,
+    width: 800,
     height: 600,
     grounds: [
         {
@@ -38,7 +40,7 @@ const MAP_CONFIG = {
         {
             x: 630,
             y: 440,
-            size: 5,
+            size: 2,
             texture: 'ground.png'
         },
         {
@@ -117,10 +119,19 @@ loader
         x: 50,
         y: 200,
         character: new Ninja(),
-        debug: DEBUG,
         id: 'player',
-        name: 'player'
+        name: 'player',
+        debug: DEBUG
     });
+    let robot = new Robot({
+        x: 50,
+        y: 200,
+        character: new Character(),
+        id: 'robot',
+        name: 'robot',
+        type: 'robot',
+        debug: DEBUG
+    })
     let map = new Map({
         debug: DEBUG,
         showTexture: SHOW_TEXTURE,
@@ -129,7 +140,7 @@ loader
 
     new Controller(obj);
 
-    map.addObject(obj);
+    map.addObject(robot);
 
     stage.addChild(map);
 

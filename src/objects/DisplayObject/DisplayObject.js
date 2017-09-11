@@ -16,6 +16,8 @@ export default class DisplayObject extends Sprite {
             name,
             character,
             debug = false,
+
+            debugColor = 0xFF0000
         } = opt;
         
         this.x = x;
@@ -38,7 +40,7 @@ export default class DisplayObject extends Sprite {
 
         this._updateComposedForce();
 
-        debug && this._setDebugMode();
+        debug && this._setDebugMode(debugColor);
     }
 
     _setCharacter (character) {
@@ -53,9 +55,9 @@ export default class DisplayObject extends Sprite {
         this._maxMoveSpeed = maxMoveSpeed;
     }
 
-    _setDebugMode () {
+    _setDebugMode (debugColor) {
         const LINE_HEIGHT = 20;
-        const COLOR = 0xFF0000;
+        const COLOR = debugColor;
         const TEXT_STYLE = { fontSize: 12, fill: COLOR, lineHeight: LINE_HEIGHT };
 
         let rectangle = new Graphics();
@@ -64,7 +66,8 @@ export default class DisplayObject extends Sprite {
         let velocity = new Text(`VEL: x: 0, y: 0`, TEXT_STYLE);
         let force = new Text(`FORCE: x: 0, y: 0`, TEXT_STYLE);
         let dir = new Text(`DIR: ${this._dir}`, TEXT_STYLE);
-        let texts = [velocity, force, status, dir];
+        let name = new Text(`NAME: ${this._name.toUpperCase()}`, TEXT_STYLE);
+        let texts = [velocity, force, status, dir, name];
 
         rectangle.lineStyle(1, COLOR, 1);
         rectangle.drawRect(-this._width / 2, -this._height, this._width, this._height);
@@ -144,6 +147,10 @@ export default class DisplayObject extends Sprite {
         this._updateComposedForce();
 
         return this;
+    }
+
+    getForce (key) {
+        return this._forces[key];
     }
 
     removeForcesByTag (tag) {
