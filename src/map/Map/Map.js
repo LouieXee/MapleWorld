@@ -4,6 +4,7 @@ import { isFunction } from '../../utils';
 import Ground from '../Ground';
 import Slope from '../Slope';
 import Wall from '../Wall';
+import Ceiling from '../Ceiling';
 
 const { Container, Graphics } = PIXI;
 
@@ -19,14 +20,15 @@ export default class Map extends Container {
             showTexture = true,
             grounds = [],
             slopes = [],
-            walls = []
+            walls = [],
+            ceilings = []
         } = opt;
 
         this._width = width;
         this._height = height;
 
-        this._bottomTiles = [];
-        this._sideTiles = [];
+        this._verticalTiles = [];
+        this._horizantolTiles = [];
         this._objects = [];
         this._player = null;
 
@@ -35,18 +37,33 @@ export default class Map extends Container {
 
         this._createTiles(
             debug, showTexture, 
-            grounds, slopes, 
-            [...walls, {
-                x: 0,
-                y: 0,
-                height,
-                type: 'right'
-            }, {
-                x: width,
-                y: 0,
-                height,
-                type: 'left'
-            }]
+            {
+                grounds,
+                slopes,
+                walls: [
+                    ...walls, 
+                    {
+                        x: 0,
+                        y: 0,
+                        height,
+                        type: 'right'
+                    }, 
+                    {
+                        x: width,
+                        y: 0,
+                        height,
+                        type: 'left'
+                    }
+                ],
+                ceilings: [
+                    ...ceilings,
+                    {
+                        x: 0,
+                        y: 0,
+                        width
+                    }
+                ]
+            }
         );
         this._locateMap();
 
@@ -74,7 +91,7 @@ export default class Map extends Container {
         this.addChild(rectangle);
     }
     
-    _createTiles (debug, showTexture, grounds, slopes, walls) {
+    _createTiles (debug, showTexture, { grounds, slopes, walls, ceilings }) {
         grounds = grounds.map(ground => (
             new Ground({
                 ...ground,
@@ -96,10 +113,17 @@ export default class Map extends Container {
                 showTexture
             })
         ))
+        ceilings = ceilings.map(ceiling => (
+            new Ceiling({
+                ...ceiling,
+                debug,
+                showTexture
+            })
+        ))
 
-        this._bottomTiles = [...grounds, ...slopes];
-        this._sideTiles = [...walls];
-        this.addChild(...grounds, ...slopes, ...walls);
+        this._verticalTiles = [...grounds, ...slopes, ...ceilings];
+        this._horizantolTiles = [...walls];
+        this.addChild(...grounds, ...slopes, ...walls, ...ceilings);
     }
 
     _followPlayer (player) {
@@ -177,14 +201,14 @@ export default class Map extends Container {
         this._player && this._followPlayer(this._player);
 
         for (let obj of this._objects) {
-            for (let sideTile of this._sideTiles) {
-                if (sideTile.check(obj)) {
+            for (let horizantolTile of this._horizantolTiles) {
+                if (horizantolTile.check(obj)) {
                     break;
                 }
             }
 
-            for (let bottomTile of this._bottomTiles) {
-                if (bottomTile.check(obj)) {
+            for (let verticalTile of this._verticalTiles) {
+                if (verticalTile.check(obj)) {
                     break;
                 }
             }

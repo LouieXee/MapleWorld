@@ -9,7 +9,6 @@ import {
 
 const { Sprite, Graphics, Text, Point, Rectangle } = PIXI;
 
-
 export default class DisplayObject extends Sprite {
 
     constructor (opt = {}) {

@@ -15,6 +15,7 @@ export default class Robot extends DisplayObject {
 	constructor (opt = {}) {
 		const {
 			range,
+			robotType = 'cautious',
 			alertRange = [-100, -130, 200, 130],
 
 			...rest
@@ -30,7 +31,7 @@ export default class Robot extends DisplayObject {
 		this._range = range;
 		this._alertRange = new Rectangle(...alertRange);
 
-		this._robotType = 'radical'; // radical cautious
+		this._robotType = robotType; // radical cautious
 		this._robotStatus = 'active'; // inactive active
 		this._target = null;
 		this._changeDirCount = 0;
@@ -46,16 +47,20 @@ export default class Robot extends DisplayObject {
 	}
 
 	_setRobotDebugMode () {
-		let rectangle = new Graphics();
 		let robotStatus = new Text('');
 		let robotType = new Text(`ROBOT TYPE: ${this._robotType.toUpperCase()}`);
 		let target = new Text('');
 
-		rectangle.beginFill(ROBOT_DEBUG_COLOR, .1);
-		rectangle.drawRect(this._alertRange.x, this._alertRange.y, this._alertRange.width, this._alertRange.height);
-		rectangle.endFill();
+		if (this._robotType == 'radical') {
+			let rectangle = new Graphics();
 
-		this._debuger.addChild(rectangle);
+			rectangle.beginFill(ROBOT_DEBUG_COLOR, .1);
+			rectangle.drawRect(this._alertRange.x, this._alertRange.y, this._alertRange.width, this._alertRange.height);
+			rectangle.endFill();
+
+			this._debuger.addChild(rectangle);
+		}
+
 		this._debuger.addTextAt([target, robotStatus, robotType], 4);
 
 		this._events

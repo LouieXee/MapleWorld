@@ -52,6 +52,25 @@ export default class MapTiles extends Sprite {
         this.addChild(line);
     }
 
+    _handleFriction (obj) {
+        if (obj.hasForce('friction') && (obj.getVelocity().x == 0 || obj.getVelocity().x * obj.getLastVelocity().x < 0)) {
+            // 摩擦力作用使速度降到0，同时移除摩擦力
+            obj.removeForce('friction');
+            obj.setVelocityX(0);
+        } else if (!obj.hasForce('friction') && (obj.getVelocity().x != 0 || obj.getComposedForce().x != 0)) {
+            // 当物体受力则添加摩擦力
+            let frictionX = obj.getComposedForce().x == 0 ? obj.getWeight() * this._friction
+                            : Math.min(Math.abs(obj.getComposedForce().x), obj.getWeight() * this._friction);
+
+            obj.addForce(
+                'friction', 
+                (obj.getVelocity().x > 0 ? -1 : 1)  * frictionX, 
+                0, 
+                'horizontal'
+            )
+        }
+    }
+
     check (obj) {
         let _this = this;
         let forcesKey = this._forcesKey;
@@ -60,26 +79,9 @@ export default class MapTiles extends Sprite {
             let { localLastPoint, localCurrentPoint, lastTargetValue, currentTargetValue, delta } = _getBasicData(forcesKey);
 
             if (localLastPoint.y <= lastTargetValue + delta && localCurrentPoint.y >= currentTargetValue - delta) {
-                let composedForce = obj.getComposedForce();
+                _handleObj(forcesKey, localCurrentPoint, currentTargetValue);
 
-                _handleObj(forcesKey, composedForce, localCurrentPoint, currentTargetValue);
-
-                if (obj.hasForce('friction') && (obj.getVelocity().x == 0 || obj.getVelocity().x * obj.getLastVelocity().x < 0)) {
-                    // 摩擦力作用使速度降到0，同时移除摩擦力
-                    obj.removeForce('friction');
-                    obj.setVelocityX(0);
-                } else if (!obj.hasForce('friction') && (obj.getVelocity().x != 0 || composedForce.x != 0)) {
-                    // 当物体受力则添加摩擦力
-                    let frictionX = composedForce.x == 0 ? obj.getWeight() * this._friction
-                                    : Math.min(Math.abs(composedForce.x), obj.getWeight() * this._friction);
-
-                    obj.addForce(
-                        'friction', 
-                        (obj.getVelocity().x > 0 ? -1 : 1)  * frictionX, 
-                        0, 
-                        'horizontal'
-                    )
-                }
+                this._handleFriction(obj);
 
                 return true;
             }
@@ -88,7 +90,7 @@ export default class MapTiles extends Sprite {
             let objHeight = obj.getHeight();
 
             if (localLastPoint.y - objHeight >= lastTargetValue - delta && localCurrentPoint.y - objHeight <= currentTargetValue + delta) {
-                _handleObj(forcesKey, obj.getComposedForce(), localCurrentPoint, currentTargetValue + objHeight);
+                _handleObj(forcesKey, localCurrentPoint, currentTargetValue + objHeight);
 
                 return true;
             }
@@ -97,7 +99,7 @@ export default class MapTiles extends Sprite {
             let { localLastPoint, localCurrentPoint, lastTargetValue, currentTargetValue, delta } = _getBasicData(forcesKey);
 
             if (localLastPoint.x <= lastTargetValue + delta && localCurrentPoint.x >= currentTargetValue - delta) {
-                _handleObj(forcesKey, obj.getComposedForce(), localCurrentPoint, currentTargetValue);
+                _handleObj(forcesKey, localCurrentPoint, currentTargetValue);
 
                 return true;
             }
@@ -106,7 +108,7 @@ export default class MapTiles extends Sprite {
             let { localLastPoint, localCurrentPoint, lastTargetValue, currentTargetValue, delta } = _getBasicData(forcesKey);
 
             if (localLastPoint.x >= lastTargetValue - delta && localCurrentPoint.x <= currentTargetValue + delta) {
-                _handleObj(forcesKey, obj.getComposedForce(), localCurrentPoint, currentTargetValue);
+                _handleObj(forcesKey, localCurrentPoint, currentTargetValue);
 
                 return true;
             }
@@ -140,19 +142,25 @@ export default class MapTiles extends Sprite {
             };
         }
 
-        function _handleObj (type, composedForce, localCurrentPoint, targetValue) {
+        function _handleObj (type, localCurrentPoint, targetValue) {
+            let composedForce = obj.getComposedForce();
+
             if (type == 'vertical-pressure') {
-                obj
-                .addForce(type, 0, -composedForce.y, 'vertical-pressure')
-                .setVelocityY(0);
+                if ((_this._tilesType == 'top' && composedForce.y < 0) || (_this._tilesType == 'bottom') && composedForce.y > 0) {
+                    obj.addForce(type, 0, -composedForce.y, 'vertical');
+                }
+
+                obj.setVelocityY(0);
 
                 localCurrentPoint.y = targetValue;
                 obj.y = _this.parent.toLocal(localCurrentPoint, _this).y;
             } else if (type == 'horizontal-pressure') {
-                obj
-                .addForce(type, -composedForce.x, 0, 'horizontal-pressure')
-                .setVelocityX(0);
-
+                if ((_this._tilesType == 'left' && composedForce.x > 0) || (_this._tilesType == 'right') && composedForce.x < 0) {
+                    obj.addForce(type, -composedForce.x, 0, 'horizontal');
+                }
+                
+                obj.setVelocityX(0);
+                
                 localCurrentPoint.x = targetValue;
                 obj.x = _this.parent.toLocal(localCurrentPoint, _this).x;
             }

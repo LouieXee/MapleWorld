@@ -18,48 +18,54 @@ const { Sprite } = PIXI;
 const TextureCache = utils.TextureCache;
 
 const DEBUG = true;
-const SHOW_TEXTURE = true;
-// const SHOW_TEXTURE = false;
+// const SHOW_TEXTURE = true;
+const SHOW_TEXTURE = false;
 
 const MAP_CONFIG = {
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
     grounds: [
         {
             x: 0,
-            y: 500,
+            y: 700,
             size: 2,
             texture: 'ground.png'
         },
         {
             x: 360,
-            y: 380,
+            y: 580,
             size: 2,
             texture: 'ground.png'
         },
         {
             x: 630,
-            y: 440,
+            y: 640,
             size: 1,
             texture: 'ground.png'
         },
         {
             x: 683,
-            y: 380,
-            size: 1,
-            edge: 'left',
+            y: 580,
+            size: 3,
+            edge: 'both',
             edgeTexture: 'edge.png',
             texture: 'ground.png'
         },
         {
+            x: 990,
+            y: 640,
+            size: 3,
+            texture: 'ground.png'
+        },
+        {
             x: 0,
-            y: 300,
+            y: 500,
             size: 1,
             texture: 'ground.png'
         },
         {
             x: 180,
-            y: 360,
+            y: 560,
             size: 1,
             edge: 'right',
             edgeTexture: 'edge.png',
@@ -67,7 +73,7 @@ const MAP_CONFIG = {
         },
         {
             x: 400,
-            y: 200,
+            y: 400,
             size: 0,
             edge: 'both',
             edgeTexture: 'edge.png',
@@ -75,7 +81,7 @@ const MAP_CONFIG = {
         },
         {
             x: 500,
-            y: 100,
+            y: 330,
             size: 0,
             edge: 'both',
             edgeTexture: 'edge.png',
@@ -85,21 +91,21 @@ const MAP_CONFIG = {
     slopes: [
         {
             x: 180,
-            y: 380,
+            y: 580,
             size: 2,
             type: 'left',
             texture: 'slope-left.png'
         },
         {
             x: 540,
-            y: 380,
+            y: 580,
             size: 1,
             type: 'right',
             texture: 'slope-right.png'
         },
         {
             x: 90,
-            y: 300,
+            y: 500,
             size: 1,
             type: 'right',
             texture: 'slope-right.png'
@@ -108,10 +114,17 @@ const MAP_CONFIG = {
     walls: [
         {
             x: 720,
-            y: 380,
+            y: 580,
             size: 1,
             type: 'left',
             texture: 'wall-left.png'
+        },
+        {
+            x: 990,
+            y: 580,
+            size: 1,
+            type: 'right',
+            texture: 'wall-right.png'
         }
     ]
 };
@@ -141,7 +154,7 @@ loader
 
     let obj = new DisplayObject({
         x: 435,
-        y: 100,
+        y: 120,
         character: new Ninja(),
         name: 'player',
         type: 'player',
