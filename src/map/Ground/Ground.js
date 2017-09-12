@@ -35,7 +35,7 @@ export default class Ground extends MapTiles {
 
     _setGroundTexture (width, deltaOfGroundAndSlope, groundTexture, edge, edgeWidth, edgeTexture) {
         groundTexture = TextureCache[groundTexture];
-        edgeTexture = TextureCache[edgeTexture];
+        edgeTexture = edgeTexture && TextureCache[edgeTexture].clone();
 
         let container = new Container();
         let tiling = new TilingSprite(groundTexture, width, groundTexture.height);
@@ -44,11 +44,13 @@ export default class Ground extends MapTiles {
         container.y = deltaOfGroundAndSlope;
 
         if (edge == 'left' && edgeTexture) {
+
             tiling.x = edgeWidth / 2;
             edgeTexture.frame = new Rectangle(0, 0, edgeWidth / 2, edgeTexture.height);
 
             container.addChild(new Sprite(edgeTexture));
         } else if (edge == 'right' && edgeTexture) {
+
             edgeTexture.frame = new Rectangle(edgeWidth / 2, 0, edgeWidth / 2, edgeTexture.height);
 
             let edge = new Sprite(edgeTexture);

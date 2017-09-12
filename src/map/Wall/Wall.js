@@ -16,28 +16,29 @@ export default class Wall extends MapTiles {
             type = 'left',
 
             wallHeight = WALL_HEIGHT,
+            groundHeight = GROUND_HEIGHT,
 
             ...rest
         } = opt;
 
         super({
             ...rest,
-            height: height || size * wallHeight + GROUND_HEIGHT,
+            height: height || size * wallHeight,
             tilesType: type,
             lineFunction: y => 0
         });
 
-        texture && showTexture && this._setWallTexture(type, texture, size * wallHeight);
+        texture && showTexture && this._setWallTexture(type, texture, size * wallHeight, groundHeight);
     }
 
-    _setWallTexture (type, texture, height) {
+    _setWallTexture (type, texture, height, groundHeight) {
         texture = TextureCache[texture];
 
         let sprite = new TilingSprite(texture, texture.width, height);
 
         type == 'left' && (sprite.x = -texture.width);
 
-        sprite.y = GROUND_HEIGHT
+        sprite.y = groundHeight
 
         this.addChildAt(sprite, 0);
     }

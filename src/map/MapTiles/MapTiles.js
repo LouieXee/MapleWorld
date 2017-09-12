@@ -68,7 +68,7 @@ export default class MapTiles extends Sprite {
                     // 摩擦力作用使速度降到0，同时移除摩擦力
                     obj.removeForce('friction');
                     obj.setVelocityX(0);
-                } else if (!obj.hasForce('friction') && obj.getVelocity().x != 0) {
+                } else if (!obj.hasForce('friction') && (obj.getVelocity().x != 0 || composedForce.x != 0)) {
                     // 当物体受力则添加摩擦力
                     let frictionX = composedForce.x == 0 ? obj.getWeight() * this._friction
                                     : Math.min(Math.abs(composedForce.x), obj.getWeight() * this._friction);
@@ -92,7 +92,8 @@ export default class MapTiles extends Sprite {
 
                 return true;
             }
-        } else if (this._tilesType == 'left' && obj.y >= this.y && obj.y <= this.y + this._height && obj.getVelocity().x >= 0) {
+        } else if (this._tilesType == 'left' && obj.y > this.y && obj.y <= this.y + this._height && obj.getVelocity().x >= 0) {
+            // 横向的默认为墙，则去除上边界的判断
             let { localLastPoint, localCurrentPoint, lastTargetValue, currentTargetValue, delta } = _getBasicData(forcesKey);
 
             if (localLastPoint.x <= lastTargetValue + delta && localCurrentPoint.x >= currentTargetValue - delta) {
@@ -100,7 +101,8 @@ export default class MapTiles extends Sprite {
 
                 return true;
             }
-        } else if (this._tilesType == 'right' && obj.y >= this.y && obj.y <= this.y + this._height && obj.getVelocity().x <= 0) {
+        } else if (this._tilesType == 'right' && obj.y > this.y && obj.y <= this.y + this._height && obj.getVelocity().x <= 0) {
+            // 横向的默认为墙，则去除上边界的判断
             let { localLastPoint, localCurrentPoint, lastTargetValue, currentTargetValue, delta } = _getBasicData(forcesKey);
 
             if (localLastPoint.x >= lastTargetValue - delta && localCurrentPoint.x <= currentTargetValue + delta) {

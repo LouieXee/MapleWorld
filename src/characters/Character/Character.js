@@ -13,7 +13,7 @@ export default class Character {
             height = 100,
             weight = 1,
             animation = {},
-            maxMoveSpeed = 5,
+            maxMoveSpeed = 3,
             jumpVelocity = new Vector(0, -15),
             moveForce = new Vector(1, 0).setTag('horizontal')
         } = opt;
@@ -27,25 +27,11 @@ export default class Character {
         this.maxMoveSpeed = maxMoveSpeed;
 
         this._events = new Events();
-
-        this._events.on('attack', (type, obj) => {
-            if (type == 'attack') {
-                obj.setStatus(STATUS_ATTACK);
-
-                setTimeout(() => {
-                    obj.setStatus(STATUS_STAND);
-                }, 1000)
-            }
-        })
     }
 
-    handleStatus (obj) {
+    handleKeys (obj) {
         let keys = obj.getKeys();
         let composedForce = obj.getComposedForce();
-
-        if (obj.getStatus() == STATUS_DEAD) {
-            return false;
-        }
 
         // 可操作状态
         if (composedForce.y == 0 && obj.getStatus() != STATUS_HIT && obj.getStatus() != STATUS_ATTACK) {
@@ -85,21 +71,6 @@ export default class Character {
             keys[KEY_MOVE_LEFT] && obj.setDir('left');
             keys[KEY_MOVE_RIGHT] && obj.setDir('right');
         }
-
-        if (obj.getStatus() != STATUS_ATTACK && obj.getStatus() != STATUS_HIT) {
-            if (composedForce.y != 0) {
-                obj.setStatus(STATUS_AIR);
-
-                obj.removeForcesByTag('horizontal')
-            } else if (obj.getVelocity().x != 0) {
-                obj.setStatus(STATUS_MOVE);
-            } else {
-                obj.setStatus(STATUS_STAND);
-            }
-
-        }        
-
-        return true;
     }
 
 }

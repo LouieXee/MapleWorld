@@ -1,5 +1,9 @@
 import { Vector, Events } from '../../utils';
-import { GRAVITY, MAX_DROP_SPEED, STATUS_STAND } from '../../config';
+import { 
+    DISPLAY_OBJECT_DEBUG_COLOR,
+    GRAVITY, MAX_DROP_SPEED, 
+    STATUS_STAND, STATUS_MOVE, STATUS_AIR, STATUS_ATTACK, STATUS_HIT, STATUS_DEAD
+} from '../../config';
 
 const { Sprite, Graphics, Text, Point } = PIXI;
 
@@ -11,13 +15,13 @@ export default class DisplayObject extends Sprite {
         const { 
             x = 0, 
             y = 0,
-            type = 'others',
-            id,
-            name,
+            type = '',
+            id = '',
+            name = '',
             character,
             debug = false,
 
-            debugColor = 0xFF0000
+            debugColor = DISPLAY_OBJECT_DEBUG_COLOR
         } = opt;
         
         this.x = x;
@@ -57,42 +61,58 @@ export default class DisplayObject extends Sprite {
 
     _setDebugMode (debugColor) {
         const LINE_HEIGHT = 20;
-        const COLOR = debugColor;
-        const TEXT_STYLE = { fontSize: 12, fill: COLOR, lineHeight: LINE_HEIGHT };
+        const TEXT_STYLE = { fontSize: 12, fill: debugColor, lineHeight: LINE_HEIGHT };
 
         let rectangle = new Graphics();
         let point = new Graphics();
-        let status = new Text(`STATUS: ${this._status}`, TEXT_STYLE)
-        let velocity = new Text(`VEL: x: 0, y: 0`, TEXT_STYLE);
-        let force = new Text(`FORCE: x: 0, y: 0`, TEXT_STYLE);
-        let dir = new Text(`DIR: ${this._dir}`, TEXT_STYLE);
-        let name = new Text(`NAME: ${this._name.toUpperCase()}`, TEXT_STYLE);
-        let texts = [velocity, force, status, dir, name];
-
-        rectangle.lineStyle(1, COLOR, 1);
+        let status = new Text('STATUS: ')
+        let velocity = new Text('');
+        let force = new Text('');
+        let position = new Text('');
+        let dir = new Text('');
+        let name = new Text(`NAME: ${this._name.toUpperCase()}`);
+        let texts = [velocity, force, position, dir, status, name];
+        
+        rectangle.lineStyle(1, debugColor, 1);
         rectangle.drawRect(-this._width / 2, -this._height, this._width, this._height);
 
-        point.beginFill(COLOR);
+        point.beginFill(debugColor);
         point.arc(0, 0, 2, 0, 2 * Math.PI);
         point.endFill();
 
         texts.forEach((text, index) => {
+            text.style = TEXT_STYLE;
             text.x = -this._width / 2;
             text.y = -this._height - (index + 1) * LINE_HEIGHT;
         })
-
         this.addChild(rectangle, point, ...texts)
 
-        this._events.on('upadteStatus', () => {
+        this._events
+        .on('upadteStatus', () => {
             status.text = `STATUS: ${this._status}`;
-            velocity.text = `VEL: x: ${this._velocity.x.toFixed(2)}, y: ${this._velocity.y.toFixed(2)}`;
-            force.text = `FORCE: x: ${this._composedForce.x.toFixed(2)}, y: ${this._composedForce.y.toFixed(2)}`;
             dir.text = `DIR: ${this._dir.toUpperCase()}`;
+            position.text = `POS: x: ${this.x.toFixed(2)}, y: ${this.y.toFixed(2)}`
+            force.text = `FORCE: x: ${this._composedForce.x.toFixed(2)}, y: ${this._composedForce.y.toFixed(2)}`;
+            velocity.text = `VEL: x: ${this._velocity.x.toFixed(2)}, y: ${this._velocity.y.toFixed(2)}`;
         })
     }
 
+    _handleKeys () {
+        this._character.handleKeys(this);
+    }
+
     _updateStatus () {
-        this._character.handleStatus(this);
+        if (this._status != STATUS_ATTACK && this._status != STATUS_HIT) {
+            if (this._composedForce.y != 0) {
+                this._status = STATUS_AIR;
+
+                this.removeForcesByTag('horizontal')
+            } else if (this._velocity.x != 0) {
+                this._status = STATUS_MOVE;
+            } else {
+                this._status = STATUS_STAND;
+            }
+        }
 
         this._events.emit('upadteStatus');
     }
@@ -241,6 +261,12 @@ export default class DisplayObject extends Sprite {
         return this;
     }
 
+    removeAllKeys () {
+        this._keys = {};
+
+        return this;
+    }
+
     setStatus (status) {
         this._status = status;
 
@@ -254,9 +280,15 @@ export default class DisplayObject extends Sprite {
     }
 
     update () {
-        this._updateStatus();
+        if (this._status == STATUS_DEAD) {
+            return false;
+        }
 
+        this._handleKeys();
+        
         this._handleVelocity();
+
+        this._updateStatus();
 
         this._lastPoint.set(this.x, this.y);
         this.x += this._velocity.x;

@@ -7,7 +7,7 @@ import Store from './common/Store';
 import Controller from './common/Controller';
 import DisplayObject from './objects/DisplayObject';
 import Robot from './objects/Robot';
-import Character from './characters/Character';
+import Snail from './characters/Snail';
 import Ninja from './characters/Ninja';
 import Map from './map/Map';
 
@@ -40,7 +40,15 @@ const MAP_CONFIG = {
         {
             x: 630,
             y: 440,
-            size: 2,
+            size: 1,
+            texture: 'ground.png'
+        },
+        {
+            x: 683,
+            y: 380,
+            size: 1,
+            edge: 'left',
+            edgeTexture: 'edge.png',
             texture: 'ground.png'
         },
         {
@@ -89,7 +97,15 @@ const MAP_CONFIG = {
             texture: 'slope-right.png'
         }
     ],
-    walls: []
+    walls: [
+        {
+            x: 720,
+            y: 380,
+            size: 1,
+            type: 'left',
+            texture: 'wall-left.png'
+        }
+    ]
 };
 
 loader
@@ -116,22 +132,23 @@ loader
     Store.setViewSize(view.width, view.height);
 
     let obj = new DisplayObject({
-        x: 50,
-        y: 200,
+        x: 435,
+        y: 100,
         character: new Ninja(),
         id: 'player',
         name: 'player',
         debug: DEBUG
     });
-    let robot = new Robot({
-        x: 50,
-        y: 200,
-        character: new Character(),
-        id: 'robot',
-        name: 'robot',
-        type: 'robot',
-        debug: DEBUG
-    })
+    let robots = [1, 2].map(i => 
+        new Robot({
+            x: Math.random() * MAP_CONFIG.width,
+            y: 200,
+            character: new Snail(),
+            debug: DEBUG,
+            name: `robot ${i}`
+        })
+    )
+
     let map = new Map({
         debug: DEBUG,
         showTexture: SHOW_TEXTURE,
@@ -140,7 +157,7 @@ loader
 
     new Controller(obj);
 
-    map.addObject(robot);
+    map.addObject(...robots, obj);
 
     stage.addChild(map);
 

@@ -6,7 +6,9 @@ import { KEY_JUMP } from '../../config';
 export default class Ninja extends Character {
 
     constructor () {
-        super();
+        super({
+            maxMoveSpeed: 5
+        });
 
         this._isCanAirJump = false;
         this._jumpCount = 0;
@@ -14,12 +16,15 @@ export default class Ninja extends Character {
     }
 
     // @override
-    handleStatus (obj) {
+    handleKeys (obj) {
         let keys = obj.getKeys();
         let composedForce = obj.getComposedForce();
 
-        if (!super.handleStatus(obj)) {
-            return false;
+        super.handleKeys(obj);
+
+        if (composedForce.y == 0) {
+            this._jumpCount = 0;
+            this._isCanAirJump = false;
         }
 
         if (!keys[KEY_JUMP] && composedForce.y != 0 && this._jumpCount == 0) {
@@ -32,11 +37,6 @@ export default class Ninja extends Character {
             this._jumpCount++;
             this._isCanAirJump = false;
             obj.addVelocity(vel)
-        }
-
-        if (composedForce.y == 0) {
-            this._jumpCount = 0;
-            this._isCanAirJump = false;
         }
     }
 

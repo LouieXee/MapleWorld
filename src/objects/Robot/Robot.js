@@ -1,58 +1,135 @@
 import DisplayObject from '../DisplayObject';
 
 import { 
+	ROBOT_DEBUG_COLOR,
     KEY_MOVE_LEFT, KEY_MOVE_UP, KEY_MOVE_RIGHT, KEY_MOVE_DOWN, 
     KEY_JUMP, KEY_ATTACK, KEY_SKILL1, KEY_SKILL2,
     STATUS_STAND, STATUS_MOVE
 } from '../../config';
 
+const MAX_STOP_COUNT = 100;
+
 export default class Robot extends DisplayObject {
 
 	constructor (opt = {}) {
-		super({
-			...opt,
+		const {
+			range,
+			...rest
+		} = opt;
 
-			debugColor: 0x00FF00
+		super({
+			...rest,
+
+			debugColor: ROBOT_DEBUG_COLOR
 		});
 
-		this._robotStatus = 'normal';
-		this._count = 0;
-		this._countTarget = 0;
+		this._range = range;
+
+		this._robotStatus = 'active';
+		this._target = null;
+		this._changeDirCount = 0;
+		this._stopCount = 0;
+		this._lastCheckTime = 0;
+		this._inactiveTimeoutId = -1;
+
+		this._maxChangeDirCount = this._getMaxChangeDirCount();
+		this._checkDelta = this._getCheckDelta();
 	}
 
-	_handleNormalStatus () {
-		let _this = this;
-		let status = this._status;
+	_getTarget () {
+		let range = this._range || [0, 0, this.parent.width, this.parent.height];
 
-		if (status == STATUS_STAND && this._count++ >= this._countTarget) {
-			let dir = Math.floor(Math.random() * 2) == 0 ? KEY_MOVE_LEFT : KEY_MOVE_RIGHT;
+		let targetX = Math.floor(range[0] + Math.random() * (range[2] - range[0]));
+		let targetY = Math.floor(range[1] + Math.random() * (range[3] - range[1]));
 
+		this._target = {
+			x: targetX,
+			y: targetY
+		};
+	}
+
+	_checkTarget () {
+		if (this.x <= this._target.x && !this._keys[KEY_MOVE_RIGHT]) {
+			this._changeDirCount++;
 			this._keys[KEY_MOVE_LEFT] = false;
+			this._keys[KEY_MOVE_RIGHT] = true;
+		} else if (this.x > this._target.x && !this._keys[KEY_MOVE_LEFT]) {
+			this._changeDirCount++;
+			this._keys[KEY_MOVE_LEFT] = true;
 			this._keys[KEY_MOVE_RIGHT] = false;
-			this._keys[dir] = true;
-			_resetCount();
-		} else if (status == STATUS_MOVE && this._count++ >= this._countTarget) {
-			this._keys[KEY_MOVE_LEFT] = false;
-			this._keys[KEY_MOVE_RIGHT] = false;
-			_resetCount();
 		}
 
-		if (Math.floor(Math.random() * 160) == 0) {
+		if (this.y > this._target.y) {
 			this._keys[KEY_JUMP] = true;
-		} else {
-			this._keys[KEY_JUMP] = false;
+		}
+	}
+
+	_shouldStop () {
+		if (this._changeDirCount > this._maxChangeDirCount || this._stopCount > MAX_STOP_COUNT) {
+			return true;
 		}
 
-		function _resetCount () {
-			_this._count = 0;
-			_this._countTarget = Math.floor(Math.random() * 100) + 100;
+		return false;
+	}
+
+	_getMaxChangeDirCount () {
+		return 3 + Math.floor(Math.random() * 3);
+	}
+
+	_getCheckDelta () {
+		return 500 + Math.floor(Math.random() * 1000);
+	}
+
+	_getInactiveDuration () {
+		return 2000 + Math.floor(Math.random() * 1000);
+	}
+
+	_doInactive () {
+		clearTimeout(this._inactiveTimeoutId);
+
+		this._robotStatus = 'inactive';
+		this.removeAllKeys();
+
+		this._inactiveTimeoutId = setTimeout(() => {
+			this._robotStatus = 'active';
+
+			this._getTarget();
+			this._maxChangeDirCount = this._getMaxChangeDirCount();
+			
+			this._changeDirCount = 0;
+			this._stopCount = 0;
+		}, this._getInactiveDuration())
+	}
+
+	_doActive () {
+		this._keys[KEY_JUMP] = false;
+		this._keys[KEY_ATTACK] = false;
+		this._keys[KEY_SKILL1] = false;
+		this._keys[KEY_SKILL2] = false;
+
+		let currentTime = new Date().getTime();
+
+		if (currentTime - this._lastCheckTime > this._checkDelta) {
+			this._lastCheckTime = new Date().getTime();
+			this._checkDelta = this._getCheckDelta();
+			this._checkTarget();
+		}
+
+		if (this._lastPoint.x == this.x) {
+			this._stopCount++;
+		} else {
+			this._stopCount = 0;
 		}
 	}
 
 	update () {
-		if (this._robotStatus == 'normal') {
-			this._handleNormalStatus();
-		} else if (this._robotStatus == 'radical') {}
+		!this._target && this._getTarget();
+
+		if (this._robotStatus != 'inactive' && this._shouldStop()) {
+			this._doInactive();
+		} else if (this._robotStatus == 'active') {
+			this._doActive();
+		}
 
 		super.update();
 	}
