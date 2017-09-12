@@ -1,4 +1,5 @@
 import Store from '../../common/Store';
+import { isFunction } from '../../utils';
 
 import Ground from '../Ground';
 import Slope from '../Slope';
@@ -141,6 +142,36 @@ export default class Map extends Container {
     }
 
     removeObject () {}
+
+    getObjects (filter) {
+        if (isFunction(filter)) {
+            return this._objects.filter(filter);
+        }
+
+        return this._objects;
+    }
+
+    getObjectsById (id) {
+        for (let obj of this._objects) {
+            if (obj.getId() == id) {
+                return obj;
+            }
+        }
+
+        return null;
+    }
+
+    getObjectsByName (name) {
+        return this._objects.filter(obj => (obj.getName() == name));
+    }
+
+    getObjectsByType (type) {
+        return this._objects.filter(obj => (obj.getType() == type));
+    }
+
+    getObjectsByTag (tag) {
+        return this._objects.filter(obj => (obj.getTag() == tag));
+    }
 
     update () {
         this._player && this._followPlayer(this._player);

@@ -1,13 +1,13 @@
 import DisplayObjectDebuger from '../DisplayObjectDebuger';
 
-import { Vector, Events } from '../../utils';
+import { Vector, Events, getUniqueId } from '../../utils';
 import { 
     DISPLAY_OBJECT_DEBUG_COLOR,
     GRAVITY, MAX_DROP_SPEED, 
     STATUS_STAND, STATUS_MOVE, STATUS_AIR, STATUS_ATTACK, STATUS_HIT, STATUS_DEAD
 } from '../../config';
 
-const { Sprite, Graphics, Text, Point } = PIXI;
+const { Sprite, Graphics, Text, Point, Rectangle } = PIXI;
 
 
 export default class DisplayObject extends Sprite {
@@ -21,6 +21,7 @@ export default class DisplayObject extends Sprite {
             type = '',
             id = '',
             name = '',
+            tag = '',
             character,
             debug = false,
 
@@ -31,8 +32,9 @@ export default class DisplayObject extends Sprite {
         this.y = y;
         this._lastPoint = new Point(x, y);
         this._type = type;
-        this._id = id;
+        this._id = id || getUniqueId();
         this._name = name;
+        this._tag = tag;
         this._setCharacter(character);
 
         this._dir = 'left';
@@ -196,6 +198,18 @@ export default class DisplayObject extends Sprite {
 
     hasForce (key) {
         return !!this._forces[key];
+    }
+    
+    getRectangle () {
+        return new Rectangle(this.x - this._width / 2, this.y - this._height, this._width, this._height);
+    }
+
+    getTag () {
+        return this._tag;
+    }
+
+    getType () {
+        return this._type;
     }
 
     getName () {

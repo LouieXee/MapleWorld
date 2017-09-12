@@ -72,6 +72,14 @@ const MAP_CONFIG = {
             edge: 'both',
             edgeTexture: 'edge.png',
             texture: 'ground.png'
+        },
+        {
+            x: 500,
+            y: 100,
+            size: 0,
+            edge: 'both',
+            edgeTexture: 'edge.png',
+            texture: 'ground.png'
         }
     ],
     slopes: [
@@ -135,8 +143,9 @@ loader
         x: 435,
         y: 100,
         character: new Ninja(),
-        id: 'player',
         name: 'player',
+        type: 'player',
+        tag: 'team-a',
         debug: DEBUG
     });
     let robots = [];
@@ -153,8 +162,9 @@ loader
             x: Math.random() * MAP_CONFIG.width,
             y: 200,
             character: new Snail(),
+            name: `robot ${i}`,
+            tag: 'team-b',
             debug: DEBUG,
-            name: `robot ${i}`
         }))
     }
 

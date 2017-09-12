@@ -1,7 +1,8 @@
 import DisplayObject from '../DisplayObject';
 
+import { testRectangleHit } from '../../utils';
 import { 
-	MAX_STOP_COUNT, ROBOT_DEBUG_COLOR,
+	ROBOT_DEBUG_COLOR,
     KEY_MOVE_LEFT, KEY_MOVE_UP, KEY_MOVE_RIGHT, KEY_MOVE_DOWN, 
     KEY_JUMP, KEY_ATTACK, KEY_SKILL1, KEY_SKILL2,
     STATUS_STAND, STATUS_MOVE
@@ -22,13 +23,15 @@ export default class Robot extends DisplayObject {
 		super({
 			...rest,
 
+			type: 'robot',
 			debugColor: ROBOT_DEBUG_COLOR
 		});
 
 		this._range = range;
-		this._alertRange = new Rectangle(alertRange[0], alertRange[1], alertRange[2], alertRange[3]);
+		this._alertRange = new Rectangle(...alertRange);
 
-		this._robotStatus = 'active';
+		this._robotType = 'radical'; // radical cautious
+		this._robotStatus = 'active'; // inactive active
 		this._target = null;
 		this._changeDirCount = 0;
 		this._stopCount = 0;
@@ -36,14 +39,16 @@ export default class Robot extends DisplayObject {
 		this._inactiveTimeoutId = -1;
 
 		this._maxChangeDirCount = this._getMaxChangeDirCount();
+		this._maxStopCount = this._getMaxStopCount();
 		this._checkDelta = this._getCheckDelta();
 
-		this._debuger && this._setRobotDebugMode();
+		this._debug && this._setRobotDebugMode();
 	}
 
 	_setRobotDebugMode () {
 		let rectangle = new Graphics();
 		let robotStatus = new Text('');
+		let robotType = new Text(`ROBOT TYPE: ${this._robotType.toUpperCase()}`);
 		let target = new Text('');
 
 		rectangle.beginFill(ROBOT_DEBUG_COLOR, .1);
@@ -51,22 +56,23 @@ export default class Robot extends DisplayObject {
 		rectangle.endFill();
 
 		this._debuger.addChild(rectangle);
-		this._debuger.addTextAt([target, robotStatus], 4);
+		this._debuger.addTextAt([target, robotStatus, robotType], 4);
 
 		this._events
 		.on('upadteStatus', () => {
             robotStatus.text = `ROBOT STATUS: ${this._robotStatus.toUpperCase()}`;
-            target.text = `ROBOT TARGET: x: ${this._target.x}, y: ${this._target.y}`;
+            target.text = `TARGET: x: ${this._target.x.toFixed(2)}, y: ${this._target.y.toFixed(2)}`;
         })
 	}
 
-	_getTarget () {
+	_getRandomTarget () {
 		let range = this._range || [0, 0, this.parent.width, this.parent.height];
 
 		let targetX = Math.floor(range[0] + Math.random() * range[2]);
 		let targetY = Math.floor(range[1] + Math.random() * range[3]);
 
-		this._target = {
+		return {
+			isRandomTarget: true,
 			x: targetX,
 			y: targetY
 		};
@@ -88,24 +94,37 @@ export default class Robot extends DisplayObject {
 		}
 	}
 
+	_detectEnemy () {
+		let targets = this.parent.getObjects(obj => (
+			(obj.getType() == 'player' || obj.getType() == 'robot') && obj.getTag() != this._tag
+		));
+		let alertRect = new Rectangle(this.x + this._alertRange.x, this.y + this._alertRange.y, this._alertRange.width, this._alertRange.height);
+
+		for (let target of targets) {
+			if (testRectangleHit(target.getRectangle(), alertRect)) {
+				this._robotStatus = 'active';
+				this._setTarget(target)
+
+				break;
+			}
+		}
+	}
+
 	_shouldStop () {
-		if (this._changeDirCount > this._maxChangeDirCount || this._stopCount > MAX_STOP_COUNT) {
+		if (this._changeDirCount > this._maxChangeDirCount || this._stopCount > this._maxStopCount) {
 			return true;
 		}
 
 		return false;
 	}
 
-	_getMaxChangeDirCount () {
-		return 3 + Math.floor(Math.random() * 3);
-	}
+	_setTarget (target) {
+		this._target = target;
+		this._maxChangeDirCount = this._getMaxChangeDirCount();
+		this._maxStopCount = this._getMaxStopCount();
 
-	_getCheckDelta () {
-		return 500 + Math.floor(Math.random() * 1000);
-	}
-
-	_getInactiveDuration () {
-		return 2000 + Math.floor(Math.random() * 1000);
+		this._changeDirCount = 0;
+		this._stopCount = 0;
 	}
 
 	_doInactive () {
@@ -116,12 +135,7 @@ export default class Robot extends DisplayObject {
 
 		this._inactiveTimeoutId = setTimeout(() => {
 			this._robotStatus = 'active';
-
-			this._getTarget();
-			this._maxChangeDirCount = this._getMaxChangeDirCount();
-			
-			this._changeDirCount = 0;
-			this._stopCount = 0;
+			this._setTarget(this._getRandomTarget());
 		}, this._getInactiveDuration())
 	}
 
@@ -147,7 +161,11 @@ export default class Robot extends DisplayObject {
 	}
 
 	update () {
-		!this._target && this._getTarget();
+		!this._target && this._setTarget(this._getRandomTarget());
+
+		if (this._robotType == 'radical' && this._target.isRandomTarget) {
+			this._detectEnemy();
+		}
 
 		if (this._robotStatus != 'inactive' && this._shouldStop()) {
 			this._doInactive();
@@ -156,6 +174,30 @@ export default class Robot extends DisplayObject {
 		}
 
 		super.update();
+	}
+
+	_getMaxChangeDirCount () {
+		if (this._robotStatus == 'alert') {
+			return 10 + Math.floor(Math.random() * 10);
+		}
+
+		return 5 + Math.floor(Math.random() * 3);
+	}
+
+	_getMaxStopCount () {
+		if (this._robotStatus == 'alert') {
+			return 300;
+		}
+
+		return 100;
+	}
+
+	_getCheckDelta () {
+		return 500 + Math.floor(Math.random() * 1000);
+	}
+
+	_getInactiveDuration () {
+		return 2000 + Math.floor(Math.random() * 1000);
 	}
 
 }
