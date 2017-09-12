@@ -1,3 +1,5 @@
+import DisplayObjectDebuger from '../DisplayObjectDebuger';
+
 import { Vector, Events } from '../../utils';
 import { 
     DISPLAY_OBJECT_DEBUG_COLOR,
@@ -6,6 +8,7 @@ import {
 } from '../../config';
 
 const { Sprite, Graphics, Text, Point } = PIXI;
+
 
 export default class DisplayObject extends Sprite {
 
@@ -59,9 +62,18 @@ export default class DisplayObject extends Sprite {
         this._maxMoveSpeed = maxMoveSpeed;
     }
 
-    _setDebugMode (debugColor) {
-        const LINE_HEIGHT = 20;
-        const TEXT_STYLE = { fontSize: 12, fill: debugColor, lineHeight: LINE_HEIGHT };
+    _setDebugMode (color) {
+        this._debuger = new DisplayObjectDebuger({
+            displayObj: this,
+            color
+        });
+
+        this.addChild(this._debuger);
+        this.interactive = true;
+        this.buttonMode = true;
+        this.on('click', () => {
+            this._debuger.toggleTextVisible();
+        })
 
         let rectangle = new Graphics();
         let point = new Graphics();
@@ -71,25 +83,22 @@ export default class DisplayObject extends Sprite {
         let position = new Text('');
         let dir = new Text('');
         let name = new Text(`NAME: ${this._name.toUpperCase()}`);
-        let texts = [velocity, force, position, dir, status, name];
         
-        rectangle.lineStyle(1, debugColor, 1);
+        rectangle.lineStyle(1, color, 1);
+        rectangle.beginFill(color, .1);
         rectangle.drawRect(-this._width / 2, -this._height, this._width, this._height);
+        rectangle.endFill();
 
-        point.beginFill(debugColor);
+        point.beginFill(color);
         point.arc(0, 0, 2, 0, 2 * Math.PI);
         point.endFill();
 
-        texts.forEach((text, index) => {
-            text.style = TEXT_STYLE;
-            text.x = -this._width / 2;
-            text.y = -this._height - (index + 1) * LINE_HEIGHT;
-        })
-        this.addChild(rectangle, point, ...texts)
+        this._debuger.addChild(rectangle, point);
+        this._debuger.addText(velocity, force, position, dir, status, name);
 
         this._events
         .on('upadteStatus', () => {
-            status.text = `STATUS: ${this._status}`;
+            status.text = `STATUS: ${this._status.replace(/^STATUS_/, '')}`;
             dir.text = `DIR: ${this._dir.toUpperCase()}`;
             position.text = `POS: x: ${this.x.toFixed(2)}, y: ${this.y.toFixed(2)}`
             force.text = `FORCE: x: ${this._composedForce.x.toFixed(2)}, y: ${this._composedForce.y.toFixed(2)}`;

@@ -1,19 +1,21 @@
 import DisplayObject from '../DisplayObject';
 
 import { 
-	ROBOT_DEBUG_COLOR,
+	MAX_STOP_COUNT, ROBOT_DEBUG_COLOR,
     KEY_MOVE_LEFT, KEY_MOVE_UP, KEY_MOVE_RIGHT, KEY_MOVE_DOWN, 
     KEY_JUMP, KEY_ATTACK, KEY_SKILL1, KEY_SKILL2,
     STATUS_STAND, STATUS_MOVE
 } from '../../config';
 
-const MAX_STOP_COUNT = 100;
+const { Graphics, Rectangle, Text } = PIXI;
 
 export default class Robot extends DisplayObject {
 
 	constructor (opt = {}) {
 		const {
 			range,
+			alertRange = [-100, -130, 200, 130],
+
 			...rest
 		} = opt;
 
@@ -24,6 +26,7 @@ export default class Robot extends DisplayObject {
 		});
 
 		this._range = range;
+		this._alertRange = new Rectangle(alertRange[0], alertRange[1], alertRange[2], alertRange[3]);
 
 		this._robotStatus = 'active';
 		this._target = null;
@@ -34,13 +37,34 @@ export default class Robot extends DisplayObject {
 
 		this._maxChangeDirCount = this._getMaxChangeDirCount();
 		this._checkDelta = this._getCheckDelta();
+
+		this._debuger && this._setRobotDebugMode();
+	}
+
+	_setRobotDebugMode () {
+		let rectangle = new Graphics();
+		let robotStatus = new Text('');
+		let target = new Text('');
+
+		rectangle.beginFill(ROBOT_DEBUG_COLOR, .1);
+		rectangle.drawRect(this._alertRange.x, this._alertRange.y, this._alertRange.width, this._alertRange.height);
+		rectangle.endFill();
+
+		this._debuger.addChild(rectangle);
+		this._debuger.addTextAt([target, robotStatus], 4);
+
+		this._events
+		.on('upadteStatus', () => {
+            robotStatus.text = `ROBOT STATUS: ${this._robotStatus.toUpperCase()}`;
+            target.text = `ROBOT TARGET: x: ${this._target.x}, y: ${this._target.y}`;
+        })
 	}
 
 	_getTarget () {
 		let range = this._range || [0, 0, this.parent.width, this.parent.height];
 
-		let targetX = Math.floor(range[0] + Math.random() * (range[2] - range[0]));
-		let targetY = Math.floor(range[1] + Math.random() * (range[3] - range[1]));
+		let targetX = Math.floor(range[0] + Math.random() * range[2]);
+		let targetY = Math.floor(range[1] + Math.random() * range[3]);
 
 		this._target = {
 			x: targetX,
@@ -59,7 +83,7 @@ export default class Robot extends DisplayObject {
 			this._keys[KEY_MOVE_RIGHT] = false;
 		}
 
-		if (this.y > this._target.y) {
+		if (this.y > this._target.y || this.hasForce('horizontal-pressure')) {
 			this._keys[KEY_JUMP] = true;
 		}
 	}

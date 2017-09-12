@@ -139,16 +139,7 @@ loader
         name: 'player',
         debug: DEBUG
     });
-    let robots = [1, 2].map(i => 
-        new Robot({
-            x: Math.random() * MAP_CONFIG.width,
-            y: 200,
-            character: new Snail(),
-            debug: DEBUG,
-            name: `robot ${i}`
-        })
-    )
-
+    let robots = [];
     let map = new Map({
         debug: DEBUG,
         showTexture: SHOW_TEXTURE,
@@ -156,6 +147,16 @@ loader
     });
 
     new Controller(obj);
+
+    for (let i = 0; i < 3; i++) {
+        robots.push(new Robot({
+            x: Math.random() * MAP_CONFIG.width,
+            y: 200,
+            character: new Snail(),
+            debug: DEBUG,
+            name: `robot ${i}`
+        }))
+    }
 
     map.addObject(...robots, obj);
 
