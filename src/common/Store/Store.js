@@ -8,6 +8,17 @@ class Store {
             width: 0,
             height: 0
         };
+        this._charactersCache = {};
+    }
+
+    registerCharacter (key, character) {
+        this._charactersCache[key] = character;
+
+        return this;
+    }
+
+    getCharacter (key) {
+        return this._charactersCache[key];
     }
 
     setViewSize (width, height) {

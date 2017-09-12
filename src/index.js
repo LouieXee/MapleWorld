@@ -1,29 +1,34 @@
 import './index.less';
 
 import 'pixi.js';
-import Stats from 'stats.js';
 
+import Game from './Game';
 import Store from './common/Store';
-import Controller from './common/Controller';
-import DisplayObject from './objects/DisplayObject';
-import Robot from './objects/Robot';
-import Snail from './characters/Snail';
+
 import Ninja from './characters/Ninja';
-import Map from './map/Map';
+import Snail from './characters/Snail';
 
-const { loader, Application, utils, Container } = PIXI;
-
-const { Sprite } = PIXI;
-
-const TextureCache = utils.TextureCache;
-
-const DEBUG = true;
-// const SHOW_TEXTURE = true;
-const SHOW_TEXTURE = false;
+const { loader, Application } = PIXI;
 
 const MAP_CONFIG = {
     width: 1200,
     height: 800,
+    robots: [
+        {
+            character: 'Snail',
+            x: 100,
+            y: 0,
+            robotType: 'radical',
+            tag: 'monsters'
+        },
+        {
+            character: 'Snail',
+            x: 200,
+            y: 0,
+            robotType: 'cautious',
+            tag: 'monsters'
+        }
+    ],
     grounds: [
         {
             x: 0,
@@ -129,6 +134,10 @@ const MAP_CONFIG = {
     ]
 };
 
+Store
+.registerCharacter('Ninja', Ninja)
+.registerCharacter('Snail', Snail)
+
 loader
 .add('ground.png')
 .add('edge.png')
@@ -142,54 +151,15 @@ loader
         width: window.innerWidth,
         height: window.innerHeight
     });
-    const { renderer, view, ticker, stage } = app;
+    const { renderer, view } = app;
 
     renderer.autoResize = true;
     document.body.appendChild(view);
-
-    const stats = new Stats();
-    document.body.appendChild(stats.dom)
-
-    Store.setViewSize(view.width, view.height);
-
-    let obj = new DisplayObject({
-        x: 435,
-        y: 120,
-        character: new Ninja(),
-        name: 'player',
-        type: 'player',
-        tag: 'team-a',
-        debug: DEBUG
-    });
-    let robots = [];
-    let map = new Map({
-        debug: DEBUG,
-        showTexture: SHOW_TEXTURE,
-        ...MAP_CONFIG
-    });
-
-    new Controller(obj);
-
-    for (let i = 0; i < 3; i++) {
-        robots.push(new Robot({
-            x: Math.random() * MAP_CONFIG.width,
-            y: 200,
-            character: new Snail(),
-            name: `robot ${i}`,
-            tag: 'team-b',
-            debug: DEBUG,
-        }))
-    }
-
-    map.addObject(...robots, obj);
-
-    stage.addChild(map);
-
-    ticker.add(() => {
-        stats.begin();
-
-        map.update();
-
-        stats.end();
+    
+    new Game({
+        app,
+        mapConfig: MAP_CONFIG,
+        debug: true,
+        showTexture: true
     })
 })

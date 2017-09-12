@@ -1,6 +1,8 @@
 import Store from '../../common/Store';
 import { isFunction } from '../../utils';
 
+import Robot from '../../objects/Robot';
+
 import Ground from '../Ground';
 import Slope from '../Slope';
 import Wall from '../Wall';
@@ -21,7 +23,8 @@ export default class Map extends Container {
             grounds = [],
             slopes = [],
             walls = [],
-            ceilings = []
+            ceilings = [],
+            robots = []
         } = opt;
 
         this._width = width;
@@ -35,39 +38,46 @@ export default class Map extends Container {
         this._debug = debug;
         this._showTexture = showTexture;
 
-        this._createTiles(
-            debug, showTexture, 
-            {
-                grounds,
-                slopes,
-                walls: [
-                    ...walls, 
-                    {
-                        x: 0,
-                        y: 0,
-                        height,
-                        type: 'right'
-                    }, 
-                    {
-                        x: width,
-                        y: 0,
-                        height,
-                        type: 'left'
-                    }
-                ],
-                ceilings: [
-                    ...ceilings,
-                    {
-                        x: 0,
-                        y: 0,
-                        width
-                    }
-                ]
-            }
-        );
+        this._createTiles({
+            grounds,
+            slopes,
+            walls: [
+                ...walls, 
+                {
+                    x: 0,
+                    y: 0,
+                    height,
+                    type: 'right'
+                }, 
+                {
+                    x: width,
+                    y: 0,
+                    height,
+                    type: 'left'
+                }
+            ],
+            ceilings: [
+                ...ceilings,
+                {
+                    x: 0,
+                    y: 0,
+                    width
+                }
+            ]
+        });
+        this._createRobots(robots);
         this._locateMap();
 
         debug && this._setDebugMode();
+    }
+
+    _setDebugMode () {
+        let rectangle = new Graphics();
+
+        rectangle.lineStyle(1, 0xFF0000, 1);
+        rectangle.drawRect(0, 0, this._width, this._height);
+
+        this.addChild(rectangle);
     }
 
     _locateMap () {
@@ -81,17 +91,11 @@ export default class Map extends Container {
             this.y = (viewSize.height - this._height) / 2;
         }
     }
-
-    _setDebugMode () {
-        let rectangle = new Graphics();
-
-        rectangle.lineStyle(1, 0xFF0000, 1);
-        rectangle.drawRect(0, 0, this._width, this._height);
-
-        this.addChild(rectangle);
-    }
     
-    _createTiles (debug, showTexture, { grounds, slopes, walls, ceilings }) {
+    _createTiles ({ grounds, slopes, walls, ceilings }) {
+        let debug = this._debug;
+        let showTexture = this._showTexture;
+
         grounds = grounds.map(ground => (
             new Ground({
                 ...ground,
@@ -124,6 +128,33 @@ export default class Map extends Container {
         this._verticalTiles = [...grounds, ...slopes, ...ceilings];
         this._horizantolTiles = [...walls];
         this.addChild(...grounds, ...slopes, ...walls, ...ceilings);
+    }
+
+    _createRobots (robots) {
+        let debug = this._debug;
+        let showTexture = this._showTexture;
+        let robotInstances = [];
+
+        for (let robot of robots) {
+            let characterCreater = Store.getCharacter(robot.character);
+
+            if (!characterCreater) {
+                continue;
+            }
+
+            robotInstances.push(
+                new Robot({
+                    ...robot,
+                    debug,
+                    showTexture,
+                    character: new characterCreater()
+
+                })
+            )
+        }
+
+        this._objects.push(...robotInstances);
+        this.addChild(...robotInstances);
     }
 
     _followPlayer (player) {

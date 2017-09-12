@@ -12,12 +12,13 @@ export default class DisplayObjectDebuger extends Container {
 
         const {
             displayObj,
+            color,
+            textVisible = false,
             lineHeight = LINE_HEIGHT,
             fontSize = FONT_SIZE,
-            color
         } = opt;
 
-        this._isTextVisible = true;
+        this._isTextVisible = textVisible;
         this._displayObj = displayObj;
         this._lineHeight = lineHeight;
         this._textStyle = {
@@ -26,6 +27,8 @@ export default class DisplayObjectDebuger extends Container {
             fill: color
         };
         this._texts = [];
+
+        this._texts.forEach(text => { text.visible = this._isTextVisible; });
     }
 
     toggleTextVisible () {
@@ -42,6 +45,7 @@ export default class DisplayObjectDebuger extends Container {
             text.x = -this._displayObj._width / 2;
             text.y = -this._displayObj._height - (currentLength + index + 1) * this._lineHeight;
             text.style = this._textStyle;
+            text.visible = this._isTextVisible;
         })
 
         this._texts.push(...newTexts);
@@ -59,6 +63,7 @@ export default class DisplayObjectDebuger extends Container {
             text.x = -this._displayObj._width / 2;
             text.y = -this._displayObj._height - (index + i + 1) * this._lineHeight;
             text.style = this._textStyle;
+            text.visible = this._isTextVisible;
         })
 
         this.addChild(...text);
