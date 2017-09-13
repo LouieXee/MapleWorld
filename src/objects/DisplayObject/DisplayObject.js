@@ -52,8 +52,10 @@ export default class DisplayObject extends Sprite {
     }
 
     _setCharacter (character) {
+        character = new character(this);
+
         const { 
-            width, height, weight, animation, maxMoveSpeed 
+            width, height, weight, animations, maxMoveSpeed 
         } = character;
 
         this._character = character;
@@ -61,6 +63,14 @@ export default class DisplayObject extends Sprite {
         this._height = height;
         this._weight = weight;
         this._maxMoveSpeed = maxMoveSpeed;
+        this._currentAnimation = null;
+        this._animations = animations;
+        this._animationContainer = new Sprite();
+
+        this._animationContainer.anchor.x = .5;
+        this._animationContainer.anchor.y = .5;
+
+        this.addChild(this._animationContainer);
     }
 
     _setDebugMode (color) {
@@ -69,7 +79,7 @@ export default class DisplayObject extends Sprite {
             color
         });
 
-        this.addChild(this._debuger);
+        this.addChildAt(this._debuger, 0);
         this.interactive = true;
         this.buttonMode = true;
         this.on('click', () => {
@@ -111,22 +121,6 @@ export default class DisplayObject extends Sprite {
         this._character.handleKeys(this);
     }
 
-    _updateStatus () {
-        if (this._status != STATUS_ATTACK && this._status != STATUS_HIT) {
-            if (this._composedForce.y != 0) {
-                this._status = STATUS_AIR;
-
-                this.removeForcesByTag('horizontal')
-            } else if (this._velocity.x != 0) {
-                this._status = STATUS_MOVE;
-            } else {
-                this._status = STATUS_STAND;
-            }
-        }
-
-        this._events.emit('upadteStatus');
-    }
-
     _handleVelocity () {
         this._lastVelocity = this._velocity.clone();
         this._velocity.add(this._composedForce.div(this._weight));
@@ -140,6 +134,44 @@ export default class DisplayObject extends Sprite {
         }
     }
 
+    _updateStatus () {
+        if (this._composedForce.y != 0) {
+            this.removeForcesByTag('horizontal')
+        }
+
+        if (this._status != STATUS_ATTACK && this._status != STATUS_HIT) {
+            if (this._composedForce.y != 0) {
+                this._status = STATUS_AIR;
+            } else if (this._velocity.x != 0) {
+                this._status = STATUS_MOVE;
+            } else {
+                this._status = STATUS_STAND;
+            }
+        }
+
+        if (this._status == STATUS_HIT && this._composedForce.y == 0) {
+            this._status = STATUS_STAND;
+        }
+
+        if (this._dir == 'left') {
+            this._animationContainer.scale.x = 1;
+        } else if (this._dir == 'right') {
+            this._animationContainer.scale.x = -1;
+        }
+
+        let animation = this._animations[this._status];
+
+        if (animation != this._currentAnimation) {
+            this._animationContainer.removeChild(this._currentAnimation);
+            this._animationContainer.addChild(animation);
+            this._currentAnimation && this._currentAnimation.stop();
+            this._currentAnimation = animation;
+            this._currentAnimation.gotoAndPlay(0);
+        }
+
+        this._events.emit('upadteStatus');
+    }
+
     _updateComposedForce () {
         let force = new Vector(0, 0);
 
@@ -148,6 +180,30 @@ export default class DisplayObject extends Sprite {
         }
 
         this._composedForce = force;
+    }
+
+    update () {
+        if (this._status == STATUS_DEAD) {
+            return false;
+        }
+
+        this._handleKeys();
+        
+        this._handleVelocity();
+
+        this._updateStatus();
+
+        this._lastPoint.set(this.x, this.y);
+        this.x += this._velocity.x;
+        this.y += this._velocity.y;
+    }
+
+    handleHit (vx, vy) {
+        if (this._status == STATUS_HIT) {
+            return false;
+        }
+
+        this._character.handleHit(vx, vy);
     }
 
     addForce (key, fx, fy, tag) {
@@ -299,22 +355,6 @@ export default class DisplayObject extends Sprite {
         this._dir = dir;
 
         return this;
-    }
-
-    update () {
-        if (this._status == STATUS_DEAD) {
-            return false;
-        }
-
-        this._handleKeys();
-        
-        this._handleVelocity();
-
-        this._updateStatus();
-
-        this._lastPoint.set(this.x, this.y);
-        this.x += this._velocity.x;
-        this.y += this._velocity.y;
     }
 
 }

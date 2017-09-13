@@ -2,7 +2,7 @@ import Stats from 'stats.js';
 
 import Store from './common/Store';
 import Controller from './common/Controller';
-import DisplayObject from './objects/DisplayObject';
+import Player from './objects/Player';
 import Ninja from './characters/Ninja';
 import Map from './map/Map';
 
@@ -35,10 +35,10 @@ export default class Game {
     }
 
     _createPlayer () {
-        let player = new DisplayObject({
+        let player = new Player({
             x: 100,
             y: 0,
-            character: new Ninja(),
+            character: Ninja,
             name: 'player',
             type: 'player',
             tag: 'player',

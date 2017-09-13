@@ -139,13 +139,15 @@ Store
 .registerCharacter('Snail', Snail)
 
 loader
-.add('ground.png')
-.add('edge.png')
-.add('slope-left.png')
-.add('slope-right.png')
-.add('wall-left.png')
-.add('wall-right.png')
-.add('background.png')
+.add('ground.png', 'imgs/ground.png')
+.add('edge.png', 'imgs/edge.png')
+.add('slope-left.png', 'imgs/slope-left.png')
+.add('slope-right.png', 'imgs/slope-right.png')
+.add('wall-left.png', 'imgs/wall-left.png')
+.add('wall-right.png', 'imgs/wall-right.png')
+.add('background.png', 'imgs/background.png')
+.add('imgs/snail.json')
+.add('imgs/ninja.json')
 .load(() => {
     const app = new Application({
         width: window.innerWidth,
@@ -155,7 +157,7 @@ loader
 
     renderer.autoResize = true;
     document.body.appendChild(view);
-    
+
     new Game({
         app,
         mapConfig: MAP_CONFIG,

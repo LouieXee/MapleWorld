@@ -2,7 +2,7 @@ import DisplayObject from '../DisplayObject';
 
 import { testRectangleHit } from '../../utils';
 import { 
-	ROBOT_DEBUG_COLOR,
+	ROBOT_DEBUG_COLOR, HIT_VEL_X, HIT_VEL_Y,
     KEY_MOVE_LEFT, KEY_MOVE_UP, KEY_MOVE_RIGHT, KEY_MOVE_DOWN, 
     KEY_JUMP, KEY_ATTACK, KEY_SKILL1, KEY_SKILL2,
     STATUS_STAND, STATUS_MOVE
@@ -15,8 +15,8 @@ export default class Robot extends DisplayObject {
 	constructor (opt = {}) {
 		const {
 			range,
+			alertRange,
 			robotType = 'cautious',
-			alertRange = [-100, -130, 200, 130],
 
 			...rest
 		} = opt;
@@ -29,9 +29,9 @@ export default class Robot extends DisplayObject {
 		});
 
 		this._range = range;
-		this._alertRange = new Rectangle(...alertRange);
-
+		this._alertRange = alertRange ? new Rectangle(...alertRange) : new Rectangle(-this._width / 2, -this._height, this._width, this._height);
 		this._robotType = robotType; // radical cautious
+
 		this._robotStatus = 'active'; // inactive active
 		this._target = null;
 		this._changeDirCount = 0;
@@ -99,18 +99,25 @@ export default class Robot extends DisplayObject {
 		}
 	}
 
-	_detectEnemy () {
-		let targets = this.parent.getObjects(obj => (
-			(obj.getType() == 'player' || obj.getType() == 'robot') && obj.getTag() != this._tag
-		));
-		let alertRect = new Rectangle(this.x + this._alertRange.x, this.y + this._alertRange.y, this._alertRange.width, this._alertRange.height);
+	_detectEnemy (enemies) {
+		let bodyRect = this.getRectangle();
 
-		for (let target of targets) {
-			if (testRectangleHit(target.getRectangle(), alertRect)) {
+		for (let enemy of enemies) {
+			let enemyRect = enemy.getRectangle();
+
+			if (testRectangleHit(enemyRect, bodyRect)) {
+				enemy.handleHit((enemy.x > this.x ? 1 : -1) * HIT_VEL_X, HIT_VEL_Y);
+			}
+
+			if (this._target.isRandomTarget 
+				&& this._robotType == 'radical' 
+				&& testRectangleHit(
+					enemyRect, 
+					new Rectangle(this.x + this._alertRange.x, this.y + this._alertRange.y, this._alertRange.width, this._alertRange.height)
+				)
+			) {
 				this._robotStatus = 'active';
-				this._setTarget(target)
-
-				break;
+				this._setTarget(enemy)
 			}
 		}
 	}
@@ -166,17 +173,21 @@ export default class Robot extends DisplayObject {
 	}
 
 	update () {
+		let enemies = this.parent.getObjects(obj => (
+			(obj.getType() == 'player' || obj.getType() == 'robot') && obj.getTag() != this._tag
+		));
+
 		!this._target && this._setTarget(this._getRandomTarget());
 
-		if (this._robotType == 'radical' && this._target.isRandomTarget) {
-			this._detectEnemy();
-		}
+		this._detectEnemy(enemies);
 
 		if (this._robotStatus != 'inactive' && this._shouldStop()) {
 			this._doInactive();
 		} else if (this._robotStatus == 'active') {
 			this._doActive();
 		}
+
+		
 
 		super.update();
 	}

@@ -147,8 +147,7 @@ export default class Map extends Container {
                     ...robot,
                     debug,
                     showTexture,
-                    character: new characterCreater()
-
+                    character: characterCreater
                 })
             )
         }
