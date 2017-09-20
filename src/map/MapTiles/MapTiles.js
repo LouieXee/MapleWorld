@@ -1,5 +1,4 @@
-const { Sprite, Graphics, particles } = PIXI;
-const { ParticleContainer } = particles;
+const { Sprite, Graphics, Texture } = PIXI;
 
 const DELTA = .1;
 
@@ -9,6 +8,7 @@ export default class MapTiles extends Sprite {
         super();
 
         const {
+            texture,
             x = 0,
             y = 0,
             width = 0,
@@ -16,6 +16,7 @@ export default class MapTiles extends Sprite {
             tilesType = 'bottom',
             friction = .8,
             debug = false,
+            showTexture = true,
             lineFunction = x => 0
         } = opt;
 
@@ -32,6 +33,7 @@ export default class MapTiles extends Sprite {
 
         this._debug = debug;
 
+        showTexture && texture && this.addChild(texture);
         debug && this._setDebugMode();
     }
 

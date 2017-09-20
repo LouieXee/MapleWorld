@@ -161,7 +161,7 @@ loader
     new Game({
         app,
         mapConfig: MAP_CONFIG,
-        debug: true,
-        showTexture: true
+        // debug: true,
+        // showTexture: true
     })
 })
