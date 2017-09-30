@@ -2,3 +2,5 @@ development
 node_modules
 res
 src
+webpack.conf.js
+gulpfile.js
