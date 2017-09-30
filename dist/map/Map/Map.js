@@ -107,12 +107,12 @@ var Map = function (_Container) {
                 x: 0,
                 y: 0,
                 height: height,
-                type: 'right'
+                dir: 'right'
             }, {
                 x: width,
                 y: 0,
                 height: height,
-                type: 'left'
+                dir: 'left'
             }]),
             ceilings: [].concat((0, _toConsumableArray3["default"])(ceilings), [{
                 x: 0,

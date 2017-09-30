@@ -98,21 +98,21 @@ const MAP_CONFIG = {
             x: 180,
             y: 580,
             size: 2,
-            type: 'left',
+            dir: 'left',
             texture: 'slope-left.png'
         },
         {
             x: 540,
             y: 580,
             size: 1,
-            type: 'right',
+            dir: 'right',
             texture: 'slope-right.png'
         },
         {
             x: 90,
             y: 500,
             size: 1,
-            type: 'right',
+            dir: 'right',
             texture: 'slope-right.png'
         }
     ],
@@ -121,14 +121,14 @@ const MAP_CONFIG = {
             x: 720,
             y: 580,
             size: 1,
-            type: 'left',
+            dir: 'left',
             texture: 'wall-left.png'
         },
         {
             x: 990,
             y: 580,
             size: 1,
-            type: 'right',
+            dir: 'right',
             texture: 'wall-right.png'
         }
     ]

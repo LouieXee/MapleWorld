@@ -49,8 +49,8 @@ var Slope = function (_MapTiles) {
             texture = _opt$texture === undefined ? null : _opt$texture,
             _opt$size = opt.size,
             size = _opt$size === undefined ? 1 : _opt$size,
-            _opt$type = opt.type,
-            type = _opt$type === undefined ? 'left' : _opt$type,
+            _opt$dir = opt.dir,
+            dir = _opt$dir === undefined ? 'left' : _opt$dir,
             _opt$slopeWidth = opt.slopeWidth,
             slopeWidth = _opt$slopeWidth === undefined ? _config.SLOPE_WIDTH : _opt$slopeWidth,
             _opt$slopeHeight = opt.slopeHeight,
@@ -65,19 +65,19 @@ var Slope = function (_MapTiles) {
             rightFunction = _opt$rightFunction === undefined ? function (x) {
             return _config.SLOPE_RIGHT_VALUE * x;
         } : _opt$rightFunction,
-            rest = (0, _objectWithoutProperties3["default"])(opt, ['texture', 'size', 'type', 'slopeWidth', 'slopeHeight', 'deltaHeight', 'leftFunction', 'rightFunction']);
+            rest = (0, _objectWithoutProperties3["default"])(opt, ['texture', 'size', 'dir', 'slopeWidth', 'slopeHeight', 'deltaHeight', 'leftFunction', 'rightFunction']);
         return (0, _possibleConstructorReturn3["default"])(this, (Slope.__proto__ || Object.getPrototypeOf(Slope)).call(this, (0, _extends3["default"])({}, rest, {
             width: size * slopeWidth,
             height: size * (slopeHeight - deltaHeight),
             tilesType: 'bottom',
-            lineFunction: type == 'left' ? function (x) {
+            lineFunction: dir == 'left' ? function (x) {
                 return leftFunction(x) + size * (slopeHeight - deltaHeight);
             } : rightFunction,
             texture: texture && new Sprite(new _MapTexture2["default"]('slope', {
                 slope: TextureCache[texture]
             }, {
                 size: size,
-                type: type,
+                dir: dir,
                 deltaHeight: deltaHeight
             }).getTexture())
         })));

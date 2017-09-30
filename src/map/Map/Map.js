@@ -47,13 +47,13 @@ export default class Map extends Container {
                     x: 0,
                     y: 0,
                     height,
-                    type: 'right'
+                    dir: 'right'
                 }, 
                 {
                     x: width,
                     y: 0,
                     height,
-                    type: 'left'
+                    dir: 'left'
                 }
             ],
             ceilings: [

@@ -93,8 +93,6 @@ var MapTexture = function () {
             var _opt = this._opt,
                 _opt$size = _opt.size,
                 size = _opt$size === undefined ? 1 : _opt$size,
-                _opt$type = _opt.type,
-                type = _opt$type === undefined ? 'left' : _opt$type,
                 groundHeight = _opt.groundHeight;
 
 
@@ -117,12 +115,12 @@ var MapTexture = function () {
             var _opt2 = this._opt,
                 _opt2$size = _opt2.size,
                 size = _opt2$size === undefined ? 1 : _opt2$size,
-                _opt2$type = _opt2.type,
-                type = _opt2$type === undefined ? 'left' : _opt2$type,
+                _opt2$dir = _opt2.dir,
+                dir = _opt2$dir === undefined ? 'left' : _opt2$dir,
                 deltaHeight = _opt2.deltaHeight;
 
             var container = new ParticleContainer();
-            var getPositionByIndex = type == 'left' ? function (i) {
+            var getPositionByIndex = dir == 'left' ? function (i) {
                 return [i * texture.width, (size - 1 - i) * (texture.height - deltaHeight)];
             } : function (i) {
                 return [i * texture.width, i * (texture.height - deltaHeight)];

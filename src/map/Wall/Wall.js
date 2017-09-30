@@ -13,7 +13,7 @@ export default class Wall extends MapTiles {
             texture = null,
             size = 1,
             height,
-            type = 'left',
+            dir = 'left',
 
             wallHeight = WALL_HEIGHT,
             groundHeight = GROUND_HEIGHT,
@@ -24,7 +24,7 @@ export default class Wall extends MapTiles {
         super({
             ...rest,
             height: height || size * wallHeight,
-            tilesType: type,
+            tilesType: dir,
             lineFunction: y => 0,
             texture: texture && (() => {
                 let textureWall = TextureCache[texture];
@@ -32,12 +32,12 @@ export default class Wall extends MapTiles {
                         wall: textureWall
                     }, {
                         size,
-                        type,
+                        dir,
                         groundHeight
                     }).getTexture();
                 let sprite = new Sprite(mapTexture);
 
-                type == 'left' && (sprite.x = - textureWall.width);
+                dir == 'left' && (sprite.x = - textureWall.width);
 
                 return sprite;
             })()

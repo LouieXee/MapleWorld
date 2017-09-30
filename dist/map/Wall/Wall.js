@@ -50,16 +50,16 @@ var Wall = function (_MapTiles) {
             _opt$size = opt.size,
             size = _opt$size === undefined ? 1 : _opt$size,
             height = opt.height,
-            _opt$type = opt.type,
-            type = _opt$type === undefined ? 'left' : _opt$type,
+            _opt$dir = opt.dir,
+            dir = _opt$dir === undefined ? 'left' : _opt$dir,
             _opt$wallHeight = opt.wallHeight,
             wallHeight = _opt$wallHeight === undefined ? _config.WALL_HEIGHT : _opt$wallHeight,
             _opt$groundHeight = opt.groundHeight,
             groundHeight = _opt$groundHeight === undefined ? _config.GROUND_HEIGHT : _opt$groundHeight,
-            rest = (0, _objectWithoutProperties3["default"])(opt, ['texture', 'size', 'height', 'type', 'wallHeight', 'groundHeight']);
+            rest = (0, _objectWithoutProperties3["default"])(opt, ['texture', 'size', 'height', 'dir', 'wallHeight', 'groundHeight']);
         return (0, _possibleConstructorReturn3["default"])(this, (Wall.__proto__ || Object.getPrototypeOf(Wall)).call(this, (0, _extends3["default"])({}, rest, {
             height: height || size * wallHeight,
-            tilesType: type,
+            tilesType: dir,
             lineFunction: function lineFunction(y) {
                 return 0;
             },
@@ -69,12 +69,12 @@ var Wall = function (_MapTiles) {
                     wall: textureWall
                 }, {
                     size: size,
-                    type: type,
+                    dir: dir,
                     groundHeight: groundHeight
                 }).getTexture();
                 var sprite = new Sprite(mapTexture);
 
-                type == 'left' && (sprite.x = -textureWall.width);
+                dir == 'left' && (sprite.x = -textureWall.width);
 
                 return sprite;
             }()

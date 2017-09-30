@@ -58,7 +58,6 @@ export default class MapTexture {
         let texture = this._textures.wall;
         let {
             size = 1,
-            type = 'left',
             groundHeight
         } = this._opt;
 
@@ -82,11 +81,11 @@ export default class MapTexture {
         let texture = this._textures.slope;
         let {
             size = 1,
-            type = 'left',
+            dir = 'left',
             deltaHeight
         } = this._opt;
         let container = new ParticleContainer();
-        let getPositionByIndex = type == 'left' ? i => {
+        let getPositionByIndex = dir == 'left' ? i => {
                 return [i * texture.width, (size - 1 - i) * (texture.height - deltaHeight)];
             } : i => {
                 return [i * texture.width, i * (texture.height - deltaHeight)];

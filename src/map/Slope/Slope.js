@@ -12,7 +12,7 @@ export default class Slope extends MapTiles {
         const {
             texture = null,
             size = 1,
-            type = 'left',
+            dir = 'left',
 
             slopeWidth = SLOPE_WIDTH,
             slopeHeight = SLOPE_HEIGHT,
@@ -28,14 +28,14 @@ export default class Slope extends MapTiles {
             width: size * slopeWidth,
             height: size * (slopeHeight - deltaHeight),
             tilesType: 'bottom',
-            lineFunction: type == 'left' 
+            lineFunction: dir == 'left' 
                         ? x => { return leftFunction(x) + size * (slopeHeight - deltaHeight); } 
                         : rightFunction,
             texture: texture && new Sprite(new MapTexture('slope', {
                     slope: TextureCache[texture]
                 }, {
                     size,
-                    type,
+                    dir,
                     deltaHeight
                 }).getTexture())
         });
