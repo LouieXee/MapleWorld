@@ -22,7 +22,7 @@ export default class MapTexture {
         this._handleTextureCache();
     }
 
-    updateOptions (opt) {
+    update (textures, opt) {
         this._opt = {
             ...opt,
             ...this._opt

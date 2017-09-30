@@ -54,8 +54,8 @@ var MapTexture = function () {
     }
 
     (0, _createClass3["default"])(MapTexture, [{
-        key: 'updateOptions',
-        value: function updateOptions(opt) {
+        key: 'update',
+        value: function update(textures, opt) {
             this._opt = (0, _extends3["default"])({}, opt, this._opt);
 
             this._handleTextureCache();
