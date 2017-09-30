@@ -55,8 +55,8 @@ var Slope = function (_MapTiles) {
             slopeWidth = _opt$slopeWidth === undefined ? _config.SLOPE_WIDTH : _opt$slopeWidth,
             _opt$slopeHeight = opt.slopeHeight,
             slopeHeight = _opt$slopeHeight === undefined ? _config.SLOPE_HEIGHT : _opt$slopeHeight,
-            _opt$deltaHeight = opt.deltaHeight,
-            deltaHeight = _opt$deltaHeight === undefined ? _config.SLOPE_GROUND_DELTA : _opt$deltaHeight,
+            _opt$slopeGroundHeigh = opt.slopeGroundHeight,
+            slopeGroundHeight = _opt$slopeGroundHeigh === undefined ? _config.SLOPE_GROUND_HEIGHT : _opt$slopeGroundHeigh,
             _opt$leftFunction = opt.leftFunction,
             leftFunction = _opt$leftFunction === undefined ? function (x) {
             return _config.SLOPE_LEFT_VALUE * x;
@@ -65,20 +65,20 @@ var Slope = function (_MapTiles) {
             rightFunction = _opt$rightFunction === undefined ? function (x) {
             return _config.SLOPE_RIGHT_VALUE * x;
         } : _opt$rightFunction,
-            rest = (0, _objectWithoutProperties3["default"])(opt, ['texture', 'size', 'dir', 'slopeWidth', 'slopeHeight', 'deltaHeight', 'leftFunction', 'rightFunction']);
+            rest = (0, _objectWithoutProperties3["default"])(opt, ['texture', 'size', 'dir', 'slopeWidth', 'slopeHeight', 'slopeGroundHeight', 'leftFunction', 'rightFunction']);
         return (0, _possibleConstructorReturn3["default"])(this, (Slope.__proto__ || Object.getPrototypeOf(Slope)).call(this, (0, _extends3["default"])({}, rest, {
             width: size * slopeWidth,
-            height: size * (slopeHeight - deltaHeight),
+            height: size * (slopeHeight - slopeGroundHeight),
             tilesType: 'bottom',
             lineFunction: dir == 'left' ? function (x) {
-                return leftFunction(x) + size * (slopeHeight - deltaHeight);
+                return leftFunction(x) + size * (slopeHeight - slopeGroundHeight);
             } : rightFunction,
             texture: texture && new Sprite(new _MapTexture2["default"]('slope', {
                 slope: TextureCache[texture]
             }, {
                 size: size,
                 dir: dir,
-                deltaHeight: deltaHeight
+                slopeGroundHeight: slopeGroundHeight
             }).getTexture())
         })));
     }

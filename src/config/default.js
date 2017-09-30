@@ -4,7 +4,7 @@ export const GROUND_WIDTH = 90;
 
 export const GROUND_EDGE_WIDTH = 74;
 
-export const SLOPE_GROUND_DELTA = 26;
+export const SLOPE_GROUND_HEIGHT = 26;
 
 export const SLOPE_WIDTH = 90;
 

@@ -60,7 +60,7 @@ var Ground = function (_MapTiles) {
             _opt$edgeWidth = opt.edgeWidth,
             edgeWidth = _opt$edgeWidth === undefined ? _config.GROUND_EDGE_WIDTH : _opt$edgeWidth,
             _opt$deltaOfGroundAnd = opt.deltaOfGroundAndSlope,
-            deltaOfGroundAndSlope = _opt$deltaOfGroundAnd === undefined ? _config.SLOPE_GROUND_DELTA - _config.GROUND_HEIGHT : _opt$deltaOfGroundAnd,
+            deltaOfGroundAndSlope = _opt$deltaOfGroundAnd === undefined ? _config.SLOPE_GROUND_HEIGHT - _config.GROUND_HEIGHT : _opt$deltaOfGroundAnd,
             rest = (0, _objectWithoutProperties3["default"])(opt, ['texture', 'edgeTexture', 'edge', 'size', 'groundWidth', 'groundHeight', 'edgeWidth', 'deltaOfGroundAndSlope']);
         return (0, _possibleConstructorReturn3["default"])(this, (Ground.__proto__ || Object.getPrototypeOf(Ground)).call(this, (0, _extends3["default"])({}, rest, {
             width: size * groundWidth + ((edge == 'left' || edge == 'right') && edgeWidth / 2 || edge == 'both' && edgeWidth || 0),

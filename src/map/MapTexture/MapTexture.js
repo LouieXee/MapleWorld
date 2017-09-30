@@ -82,18 +82,18 @@ export default class MapTexture {
         let {
             size = 1,
             dir = 'left',
-            deltaHeight
+            slopeGroundHeight
         } = this._opt;
         let container = new ParticleContainer();
         let getPositionByIndex = dir == 'left' ? i => {
-                return [i * texture.width, (size - 1 - i) * (texture.height - deltaHeight)];
+                return [i * texture.width, (size - 1 - i) * (texture.height - slopeGroundHeight)];
             } : i => {
-                return [i * texture.width, i * (texture.height - deltaHeight)];
+                return [i * texture.width, i * (texture.height - slopeGroundHeight)];
             }
 
         renderer.resize(
             size * texture.width,
-            size * ( texture.height - deltaHeight ) + deltaHeight
+            size * ( texture.height - slopeGroundHeight ) + slopeGroundHeight
         );
         stage.removeChildren();
 

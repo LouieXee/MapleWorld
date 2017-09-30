@@ -117,16 +117,16 @@ var MapTexture = function () {
                 size = _opt2$size === undefined ? 1 : _opt2$size,
                 _opt2$dir = _opt2.dir,
                 dir = _opt2$dir === undefined ? 'left' : _opt2$dir,
-                deltaHeight = _opt2.deltaHeight;
+                slopeGroundHeight = _opt2.slopeGroundHeight;
 
             var container = new ParticleContainer();
             var getPositionByIndex = dir == 'left' ? function (i) {
-                return [i * texture.width, (size - 1 - i) * (texture.height - deltaHeight)];
+                return [i * texture.width, (size - 1 - i) * (texture.height - slopeGroundHeight)];
             } : function (i) {
-                return [i * texture.width, i * (texture.height - deltaHeight)];
+                return [i * texture.width, i * (texture.height - slopeGroundHeight)];
             };
 
-            renderer.resize(size * texture.width, size * (texture.height - deltaHeight) + deltaHeight);
+            renderer.resize(size * texture.width, size * (texture.height - slopeGroundHeight) + slopeGroundHeight);
             stage.removeChildren();
 
             for (var i = 0; i < size; i++) {
