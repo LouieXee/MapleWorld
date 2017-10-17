@@ -8,10 +8,6 @@ var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
 
 var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
-var _extends2 = require('babel-runtime/helpers/extends');
-
-var _extends3 = _interopRequireDefault(_extends2);
-
 var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
@@ -23,7 +19,7 @@ var _createClass3 = _interopRequireDefault(_createClass2);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 var _PIXI = PIXI,
-    autoDetectRenderer = _PIXI.autoDetectRenderer,
+    CanvasRenderer = _PIXI.CanvasRenderer,
     Rectangle = _PIXI.Rectangle,
     Sprite = _PIXI.Sprite,
     Container = _PIXI.Container,
@@ -42,7 +38,7 @@ var MapTexture = function () {
         this._textureCache = document.createElement('canvas');
 
         this._stage = new Container();
-        this._renderer = autoDetectRenderer({
+        this._renderer = new CanvasRenderer({
             width: 0,
             height: 0,
             view: this._textureCache,
@@ -54,15 +50,6 @@ var MapTexture = function () {
     }
 
     (0, _createClass3["default"])(MapTexture, [{
-        key: 'update',
-        value: function update(textures, opt) {
-            this._opt = (0, _extends3["default"])({}, opt, this._opt);
-
-            this._handleTextureCache();
-
-            return this;
-        }
-    }, {
         key: 'getTexture',
         value: function getTexture() {
             return Texture.from(this._textureCache);
