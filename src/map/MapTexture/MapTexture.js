@@ -1,4 +1,4 @@
-const { autoDetectRenderer, Rectangle, Sprite, Container, Texture } = PIXI;
+const { CanvasRenderer, Rectangle, Sprite, Container, Texture } = PIXI;
 const { ParticleContainer } = PIXI.particles;
 const { TilingSprite } = PIXI.extras;
 
@@ -11,7 +11,7 @@ export default class MapTexture {
         this._textureCache = document.createElement('canvas');
 
         this._stage = new Container();
-        this._renderer = autoDetectRenderer({
+        this._renderer = new CanvasRenderer({
             width: 0,
             height: 0,
             view: this._textureCache,
@@ -20,17 +20,6 @@ export default class MapTexture {
         this._renderer.autoResize = true;
 
         this._handleTextureCache();
-    }
-
-    update (textures, opt) {
-        this._opt = {
-            ...opt,
-            ...this._opt
-        }
-
-        this._handleTextureCache();
-
-        return this;
     }
 
     getTexture () {
