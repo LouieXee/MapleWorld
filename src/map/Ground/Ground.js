@@ -28,14 +28,20 @@ export default class Ground extends MapTiles {
             width: size * groundWidth + ((edge == 'left' || edge == 'right') && edgeWidth / 2 || edge == 'both' && edgeWidth || 0),
             tilesType: 'bottom',
             lineFunction: x => 0,
-            texture: texture && new Sprite(new MapTexture('ground', {
+            texture: texture && (() => {
+                let sprite = new Sprite(new MapTexture('ground', {
                     ground: TextureCache[texture],
                     edge: TextureCache[edgeTexture]
                 }, {
                     size,
                     edge,
                     deltaOfGroundAndSlope
-                }).getTexture())
+                }).getTexture());
+
+                sprite.y = deltaOfGroundAndSlope;
+
+                return sprite;
+            })()
         });
     }
 

@@ -1,4 +1,4 @@
-const { CanvasRenderer, Rectangle, Sprite, Container, Texture } = PIXI;
+const { CanvasRenderer, WebGLRenderer, Rectangle, Sprite, Container, Texture } = PIXI;
 const { ParticleContainer } = PIXI.particles;
 const { TilingSprite } = PIXI.extras;
 
@@ -15,9 +15,9 @@ export default class MapTexture {
             width: 0,
             height: 0,
             view: this._textureCache,
-            transparent: true
+            transparent: true,
+            autoResize: true
         });
-        this._renderer.autoResize = true;
 
         this._handleTextureCache();
     }
@@ -54,7 +54,6 @@ export default class MapTexture {
             texture.width,
             size * texture.height + groundHeight
         );
-        stage.removeChildren();
 
         let tiling = new TilingSprite(texture, texture.width, size * texture.height);
 
@@ -84,7 +83,6 @@ export default class MapTexture {
             size * texture.width,
             size * ( texture.height - slopeGroundHeight ) + slopeGroundHeight
         );
-        stage.removeChildren();
 
         for (let i = 0; i < size; i++) {
             let slope = new Sprite(texture);
@@ -118,10 +116,8 @@ export default class MapTexture {
             textureGround.height
         );
 
-        stage.removeChildren();
 
         container.addChild(tiling);
-        container.y = deltaOfGroundAndSlope;
 
         if (edge == 'left') {
             textureEdge = textureEdge.clone();

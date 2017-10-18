@@ -153,7 +153,7 @@ export default class Map extends Container {
         }
 
         this._objects.push(...robotInstances);
-        this.addChild(...robotInstances);
+        robotInstances.length && this.addChild(...robotInstances);
     }
 
     _followPlayer (player) {
