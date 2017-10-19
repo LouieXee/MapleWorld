@@ -31,17 +31,13 @@ export default class Slope extends MapTiles {
             lineFunction: dir == 'left' 
                         ? x => { return leftFunction(x) + size * (slopeHeight - slopeGroundHeight); } 
                         : rightFunction,
-            texture: texture && (() => {
-                let sprite = new Sprite(new MapTexture('slope', {
-                    slope: TextureCache[texture]
-                }, {
-                    size,
-                    dir,
-                    slopeGroundHeight
-                }).getTexture());
-
-                return sprite;
-            })()
+            texture: texture && new MapTexture('slope', {
+                slope: TextureCache[texture]
+            }, {
+                size,
+                dir,
+                slopeGroundHeight
+            })
         });
     }
 

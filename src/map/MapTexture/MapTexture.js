@@ -2,32 +2,33 @@ const { CanvasRenderer, WebGLRenderer, Rectangle, Sprite, Container, Texture } =
 const { ParticleContainer } = PIXI.particles;
 const { TilingSprite } = PIXI.extras;
 
-export default class MapTexture {
+export default class MapTexture extends Sprite {
 
     constructor (type, textures, opt = {}) {
+        super();
+
         this._type = type;
         this._textures = textures;
         this._opt = opt;
-        this._textureCache = document.createElement('canvas');
-
-        this._stage = new Container();
-        this._renderer = new CanvasRenderer({
-            width: 0,
-            height: 0,
-            view: this._textureCache,
-            transparent: true,
-            autoResize: true
-        });
+        this._canvasCache = null;
 
         this._handleTextureCache();
     }
 
-    getTexture () {
-        return Texture.from(this._textureCache);
-    }
+    toCanvas () {
+        if (this._canvasCache) {
+            return this._canvasCache;
+        }
 
-    getCanvas () {
-        return this._textureCache;
+        this._canvasCache = document.createElement('canvas');
+        this.renderCanvas(new CanvasRenderer({
+            width: this.children[0].width,
+            height: this.children[0].height,
+            view: this._canvasCache,
+            transparent: true
+        }));
+
+        return this._canvasCache;
     }
 
     _handleTextureCache () {
@@ -42,47 +43,37 @@ export default class MapTexture {
     }
 
     _handleWallTexture () {
-        let stage = this._stage;
-        let renderer = this._renderer;
         let texture = this._textures.wall;
         let {
             size = 1,
+            dir,
             groundHeight
         } = this._opt;
-
-        renderer.resize(
-            texture.width,
-            size * texture.height + groundHeight
-        );
 
         let tiling = new TilingSprite(texture, texture.width, size * texture.height);
 
         tiling.y = groundHeight;
 
-        stage.addChild(tiling);
-        renderer.render(stage);
+        this.addChild(tiling);
+
+        if (dir == 'left') {
+            this.x = - texture.width;
+        }
     }
 
     _handleSlopeTexture () {
-        let stage = this._stage;
-        let renderer = this._renderer;
         let texture = this._textures.slope;
         let {
             size = 1,
             dir = 'left',
             slopeGroundHeight
         } = this._opt;
-        let container = new ParticleContainer();
+        let container = new Container();
         let getPositionByIndex = dir == 'left' ? i => {
                 return [i * texture.width, (size - 1 - i) * (texture.height - slopeGroundHeight)];
             } : i => {
                 return [i * texture.width, i * (texture.height - slopeGroundHeight)];
             }
-
-        renderer.resize(
-            size * texture.width,
-            size * ( texture.height - slopeGroundHeight ) + slopeGroundHeight
-        );
 
         for (let i = 0; i < size; i++) {
             let slope = new Sprite(texture);
@@ -94,13 +85,10 @@ export default class MapTexture {
             container.addChild(slope);
         }
 
-        stage.addChild(container);
-        renderer.render(stage);
+        this.addChild(container);
     }
 
     _handleGroundTexture () {
-        let stage = this._stage;
-        let renderer = this._renderer;
         let textureGround = this._textures.ground;
         let textureEdge = this._textures.edge;
         let {
@@ -110,12 +98,6 @@ export default class MapTexture {
         } = this._opt;
         let container = new Container();
         let tiling = new TilingSprite(textureGround, size * textureGround.width, textureGround.height);
-
-        renderer.resize(
-            size * textureGround.width + ((edge == 'left' || edge == 'right') && textureEdge.width / 2 || edge == 'both' && textureEdge.width || 0),
-            textureGround.height
-        );
-
 
         container.addChild(tiling);
 
@@ -153,8 +135,8 @@ export default class MapTexture {
             container.addChild(rightEdge);
         }
 
-        stage.addChild(container);
-        renderer.render(stage);
+        this.addChild(container);
+        this.y = deltaOfGroundAndSlope;
     }
 
 }

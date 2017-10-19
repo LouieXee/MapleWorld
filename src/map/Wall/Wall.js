@@ -26,21 +26,13 @@ export default class Wall extends MapTiles {
             height: height || size * wallHeight,
             tilesType: dir,
             lineFunction: y => 0,
-            texture: texture && (() => {
-                let textureWall = TextureCache[texture];
-                let mapTexture = new MapTexture('wall', {
-                        wall: textureWall
-                    }, {
-                        size,
-                        dir,
-                        groundHeight
-                    }).getTexture();
-                let sprite = new Sprite(mapTexture);
-
-                dir == 'left' && (sprite.x = - textureWall.width);
-
-                return sprite;
-            })()
+            texture: texture && new MapTexture('wall', {
+                wall: TextureCache[texture]
+            }, {
+                size,
+                dir,
+                groundHeight
+            })
         });
 
     }

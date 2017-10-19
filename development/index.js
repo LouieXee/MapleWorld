@@ -2,32 +2,33 @@ import './index.less';
 
 import 'pixi.js';
 
-import Game from '../src/Game';
+import { Game, MapTexture } from '../src';
 import Store from '../src/common/Store';
 
 import Ninja from '../src/characters/Ninja';
 import Snail from '../src/characters/Snail';
 
-const { loader, Application } = PIXI;
+const { loader, Application, CanvasRenderer } = PIXI;
+const { TextureCache } = PIXI.utils;
 
 const MAP_CONFIG = {
     width: 1200,
     height: 800,
     robots: [
-        {
-            character: 'Snail',
-            x: 100,
-            y: 0,
-            robotType: 'radical',
-            tag: 'monsters'
-        },
-        {
-            character: 'Snail',
-            x: 200,
-            y: 0,
-            robotType: 'cautious',
-            tag: 'monsters'
-        }
+        // {
+        //     character: 'Snail',
+        //     x: 100,
+        //     y: 0,
+        //     robotType: 'radical',
+        //     tag: 'monsters'
+        // },
+        // {
+        //     character: 'Snail',
+        //     x: 200,
+        //     y: 0,
+        //     robotType: 'cautious',
+        //     tag: 'monsters'
+        // }
     ],
     grounds: [
         {
@@ -164,4 +165,24 @@ loader
         // debug: true,
         // showTexture: true
     })
+
+    // let testView = document.createElement('canvas');
+    // let spriteTexture = new MapTexture('wall', {
+    //     wall: TextureCache['wall-left.png']
+    // }, {
+    //     size: 2,
+    //     dir: 'left',
+    //     groundHeight: 27
+    // })
+    // let testRenderer = new CanvasRenderer({
+    //     width: 100,
+    //     height: 100,
+    //     view: testView,
+    //     transparent: true
+    // });
+
+    // console.log(spriteTexture)
+
+    // spriteTexture.renderCanvas(testRenderer);
+    // document.body.appendChild(testView)
 })
