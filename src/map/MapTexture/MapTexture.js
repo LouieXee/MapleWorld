@@ -47,14 +47,14 @@ export default class MapTexture extends Sprite {
         let {
             size = 1,
             dir,
-            slopeGroundHeight
+            groundHeight
         } = this._opt;
 
         let tiling = new TilingSprite(texture, texture.width, size * texture.height);
 
         this.addChild(tiling);
 
-        this.y = slopeGroundHeight;
+        this.y = groundHeight;
         if (dir == 'left') {
             this.x = - texture.width;
         }
@@ -65,13 +65,13 @@ export default class MapTexture extends Sprite {
         let {
             size = 1,
             dir = 'left',
-            slopeGroundHeight
+            groundHeight
         } = this._opt;
         let container = new Container();
         let getPositionByIndex = dir == 'left' ? i => {
-                return [i * texture.width, (size - 1 - i) * (texture.height - slopeGroundHeight)];
+                return [i * texture.width, (size - 1 - i) * (texture.height - groundHeight)];
             } : i => {
-                return [i * texture.width, i * (texture.height - slopeGroundHeight)];
+                return [i * texture.width, i * (texture.height - groundHeight)];
             }
 
         for (let i = 0; i < size; i++) {
@@ -93,7 +93,7 @@ export default class MapTexture extends Sprite {
         let {
             size = 1,
             edge = 'none',
-            deltaOfGroundAndSlope,
+            groundHeight,
         } = this._opt;
         let container = new Container();
         let tiling = new TilingSprite(textureGround, size * textureGround.width, textureGround.height);
@@ -135,7 +135,7 @@ export default class MapTexture extends Sprite {
         }
 
         this.addChild(container);
-        this.y = deltaOfGroundAndSlope;
+        this.y = groundHeight - textureGround.height;
     }
 
 }

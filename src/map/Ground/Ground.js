@@ -1,7 +1,7 @@
 import MapTiles from '../MapTiles';
 import MapTexture from '../MapTexture';
 
-import { GROUND_WIDTH, GROUND_HEIGHT, GROUND_EDGE_WIDTH, SLOPE_GROUND_HEIGHT } from '../../config';
+import { GROUND_WIDTH, GROUND_HEIGHT, GROUND_EDGE_WIDTH } from '../../config';
 
 const { Sprite } = PIXI;
 const { TextureCache } = PIXI.utils;
@@ -18,7 +18,6 @@ export default class Ground extends MapTiles {
             groundWidth = GROUND_WIDTH,
             groundHeight = GROUND_HEIGHT,
             edgeWidth = GROUND_EDGE_WIDTH,
-            deltaOfGroundAndSlope = SLOPE_GROUND_HEIGHT - GROUND_HEIGHT,
 
             ...rest
         } = opt;
@@ -34,7 +33,7 @@ export default class Ground extends MapTiles {
             }, {
                 size,
                 edge,
-                deltaOfGroundAndSlope
+                groundHeight
             })
         });
     }

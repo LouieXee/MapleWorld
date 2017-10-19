@@ -165,24 +165,4 @@ loader
         // debug: true,
         // showTexture: true
     })
-
-    // let testView = document.createElement('canvas');
-    // let spriteTexture = new MapTexture('wall', {
-    //     wall: TextureCache['wall-left.png']
-    // }, {
-    //     size: 2,
-    //     dir: 'left',
-    //     groundHeight: 27
-    // })
-    // let testRenderer = new CanvasRenderer({
-    //     width: 100,
-    //     height: 100,
-    //     view: testView,
-    //     transparent: true
-    // });
-
-    // console.log(spriteTexture)
-
-    // spriteTexture.renderCanvas(testRenderer);
-    // document.body.appendChild(testView)
 })
