@@ -235,7 +235,7 @@ var Map = function (_Container) {
             }
 
             (_objects = this._objects).push.apply(_objects, robotInstances);
-            this.addChild.apply(this, robotInstances);
+            robotInstances.length && this.addChild.apply(this, robotInstances);
         }
     }, {
         key: '_followPlayer',

@@ -68,14 +68,14 @@ var Ground = function (_MapTiles) {
             lineFunction: function lineFunction(x) {
                 return 0;
             },
-            texture: texture && new Sprite(new _MapTexture2["default"]('ground', {
+            texture: texture && new _MapTexture2["default"]('ground', {
                 ground: TextureCache[texture],
                 edge: TextureCache[edgeTexture]
             }, {
                 size: size,
                 edge: edge,
                 deltaOfGroundAndSlope: deltaOfGroundAndSlope
-            }).getTexture())
+            })
         })));
     }
 

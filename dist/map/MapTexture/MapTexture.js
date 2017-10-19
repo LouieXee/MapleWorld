@@ -16,10 +16,19 @@ var _createClass2 = require('babel-runtime/helpers/createClass');
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
+var _possibleConstructorReturn2 = require('babel-runtime/helpers/possibleConstructorReturn');
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = require('babel-runtime/helpers/inherits');
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 var _PIXI = PIXI,
     CanvasRenderer = _PIXI.CanvasRenderer,
+    WebGLRenderer = _PIXI.WebGLRenderer,
     Rectangle = _PIXI.Rectangle,
     Sprite = _PIXI.Sprite,
     Container = _PIXI.Container,
@@ -27,37 +36,40 @@ var _PIXI = PIXI,
 var ParticleContainer = PIXI.particles.ParticleContainer;
 var TilingSprite = PIXI.extras.TilingSprite;
 
-var MapTexture = function () {
+var MapTexture = function (_Sprite) {
+    (0, _inherits3["default"])(MapTexture, _Sprite);
+
     function MapTexture(type, textures) {
         var opt = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
         (0, _classCallCheck3["default"])(this, MapTexture);
 
-        this._type = type;
-        this._textures = textures;
-        this._opt = opt;
-        this._textureCache = document.createElement('canvas');
+        var _this = (0, _possibleConstructorReturn3["default"])(this, (MapTexture.__proto__ || Object.getPrototypeOf(MapTexture)).call(this));
 
-        this._stage = new Container();
-        this._renderer = new CanvasRenderer({
-            width: 0,
-            height: 0,
-            view: this._textureCache,
-            transparent: true
-        });
-        this._renderer.autoResize = true;
+        _this._type = type;
+        _this._textures = textures;
+        _this._opt = opt;
+        _this._canvasCache = null;
 
-        this._handleTextureCache();
+        _this._handleTextureCache();
+        return _this;
     }
 
     (0, _createClass3["default"])(MapTexture, [{
-        key: 'getTexture',
-        value: function getTexture() {
-            return Texture.from(this._textureCache);
-        }
-    }, {
-        key: 'getCanvas',
-        value: function getCanvas() {
-            return this._textureCache;
+        key: 'toCanvas',
+        value: function toCanvas() {
+            if (this._canvasCache) {
+                return this._canvasCache;
+            }
+
+            this._canvasCache = document.createElement('canvas');
+            this.renderCanvas(new CanvasRenderer({
+                width: this.children[0].width,
+                height: this.children[0].height,
+                view: this._canvasCache,
+                transparent: true
+            }));
+
+            return this._canvasCache;
         }
     }, {
         key: '_handleTextureCache',
@@ -74,30 +86,27 @@ var MapTexture = function () {
     }, {
         key: '_handleWallTexture',
         value: function _handleWallTexture() {
-            var stage = this._stage;
-            var renderer = this._renderer;
             var texture = this._textures.wall;
             var _opt = this._opt,
                 _opt$size = _opt.size,
                 size = _opt$size === undefined ? 1 : _opt$size,
+                dir = _opt.dir,
                 groundHeight = _opt.groundHeight;
 
-
-            renderer.resize(texture.width, size * texture.height + groundHeight);
-            stage.removeChildren();
 
             var tiling = new TilingSprite(texture, texture.width, size * texture.height);
 
             tiling.y = groundHeight;
 
-            stage.addChild(tiling);
-            renderer.render(stage);
+            this.addChild(tiling);
+
+            if (dir == 'left') {
+                this.x = -texture.width;
+            }
         }
     }, {
         key: '_handleSlopeTexture',
         value: function _handleSlopeTexture() {
-            var stage = this._stage;
-            var renderer = this._renderer;
             var texture = this._textures.slope;
             var _opt2 = this._opt,
                 _opt2$size = _opt2.size,
@@ -106,15 +115,12 @@ var MapTexture = function () {
                 dir = _opt2$dir === undefined ? 'left' : _opt2$dir,
                 slopeGroundHeight = _opt2.slopeGroundHeight;
 
-            var container = new ParticleContainer();
+            var container = new Container();
             var getPositionByIndex = dir == 'left' ? function (i) {
                 return [i * texture.width, (size - 1 - i) * (texture.height - slopeGroundHeight)];
             } : function (i) {
                 return [i * texture.width, i * (texture.height - slopeGroundHeight)];
             };
-
-            renderer.resize(size * texture.width, size * (texture.height - slopeGroundHeight) + slopeGroundHeight);
-            stage.removeChildren();
 
             for (var i = 0; i < size; i++) {
                 var slope = new Sprite(texture);
@@ -130,14 +136,11 @@ var MapTexture = function () {
                 container.addChild(slope);
             }
 
-            stage.addChild(container);
-            renderer.render(stage);
+            this.addChild(container);
         }
     }, {
         key: '_handleGroundTexture',
         value: function _handleGroundTexture() {
-            var stage = this._stage;
-            var renderer = this._renderer;
             var textureGround = this._textures.ground;
             var textureEdge = this._textures.edge;
             var _opt3 = this._opt,
@@ -150,12 +153,7 @@ var MapTexture = function () {
             var container = new Container();
             var tiling = new TilingSprite(textureGround, size * textureGround.width, textureGround.height);
 
-            renderer.resize(size * textureGround.width + ((edge == 'left' || edge == 'right') && textureEdge.width / 2 || edge == 'both' && textureEdge.width || 0), textureGround.height);
-
-            stage.removeChildren();
-
             container.addChild(tiling);
-            container.y = deltaOfGroundAndSlope;
 
             if (edge == 'left') {
                 textureEdge = textureEdge.clone();
@@ -191,11 +189,11 @@ var MapTexture = function () {
                 container.addChild(rightEdge);
             }
 
-            stage.addChild(container);
-            renderer.render(stage);
+            this.addChild(container);
+            this.y = deltaOfGroundAndSlope;
         }
     }]);
     return MapTexture;
-}();
+}(Sprite);
 
 exports["default"] = MapTexture;

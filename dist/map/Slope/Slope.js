@@ -73,13 +73,13 @@ var Slope = function (_MapTiles) {
             lineFunction: dir == 'left' ? function (x) {
                 return leftFunction(x) + size * (slopeHeight - slopeGroundHeight);
             } : rightFunction,
-            texture: texture && new Sprite(new _MapTexture2["default"]('slope', {
+            texture: texture && new _MapTexture2["default"]('slope', {
                 slope: TextureCache[texture]
             }, {
                 size: size,
                 dir: dir,
                 slopeGroundHeight: slopeGroundHeight
-            }).getTexture())
+            })
         })));
     }
 

@@ -63,21 +63,13 @@ var Wall = function (_MapTiles) {
             lineFunction: function lineFunction(y) {
                 return 0;
             },
-            texture: texture && function () {
-                var textureWall = TextureCache[texture];
-                var mapTexture = new _MapTexture2["default"]('wall', {
-                    wall: textureWall
-                }, {
-                    size: size,
-                    dir: dir,
-                    groundHeight: groundHeight
-                }).getTexture();
-                var sprite = new Sprite(mapTexture);
-
-                dir == 'left' && (sprite.x = -textureWall.width);
-
-                return sprite;
-            }()
+            texture: texture && new _MapTexture2["default"]('wall', {
+                wall: TextureCache[texture]
+            }, {
+                size: size,
+                dir: dir,
+                groundHeight: groundHeight
+            })
         })));
     }
 
