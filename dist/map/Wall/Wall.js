@@ -54,9 +54,9 @@ var Wall = function (_MapTiles) {
             dir = _opt$dir === undefined ? 'left' : _opt$dir,
             _opt$wallHeight = opt.wallHeight,
             wallHeight = _opt$wallHeight === undefined ? _config.WALL_HEIGHT : _opt$wallHeight,
-            _opt$groundHeight = opt.groundHeight,
-            groundHeight = _opt$groundHeight === undefined ? _config.GROUND_HEIGHT : _opt$groundHeight,
-            rest = (0, _objectWithoutProperties3["default"])(opt, ['texture', 'size', 'height', 'dir', 'wallHeight', 'groundHeight']);
+            _opt$slopeGroundHeigh = opt.slopeGroundHeight,
+            slopeGroundHeight = _opt$slopeGroundHeigh === undefined ? _config.SLOPE_GROUND_HEIGHT : _opt$slopeGroundHeigh,
+            rest = (0, _objectWithoutProperties3["default"])(opt, ['texture', 'size', 'height', 'dir', 'wallHeight', 'slopeGroundHeight']);
         return (0, _possibleConstructorReturn3["default"])(this, (Wall.__proto__ || Object.getPrototypeOf(Wall)).call(this, (0, _extends3["default"])({}, rest, {
             height: height || size * wallHeight,
             tilesType: dir,
@@ -68,7 +68,7 @@ var Wall = function (_MapTiles) {
             }, {
                 size: size,
                 dir: dir,
-                groundHeight: groundHeight
+                slopeGroundHeight: slopeGroundHeight
             })
         })));
     }

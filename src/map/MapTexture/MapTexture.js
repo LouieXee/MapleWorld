@@ -47,16 +47,16 @@ export default class MapTexture extends Sprite {
         let {
             size = 1,
             dir,
-            groundHeight
+            slopeGroundHeight
         } = this._opt;
 
         let tiling = new TilingSprite(texture, texture.width, size * texture.height);
 
         this.addChild(tiling);
 
+        this.y = slopeGroundHeight;
         if (dir == 'left') {
             this.x = - texture.width;
-            this.y = groundHeight;
         }
     }
 

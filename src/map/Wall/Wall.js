@@ -1,7 +1,7 @@
 import MapTiles from '../MapTiles';
 import MapTexture from '../MapTexture';
 
-import { WALL_HEIGHT, GROUND_HEIGHT } from '../../config';
+import { WALL_HEIGHT, GROUND_HEIGHT, SLOPE_GROUND_HEIGHT } from '../../config';
 
 const { Sprite } = PIXI;
 const { TextureCache } = PIXI.utils;
@@ -16,7 +16,7 @@ export default class Wall extends MapTiles {
             dir = 'left',
 
             wallHeight = WALL_HEIGHT,
-            groundHeight = GROUND_HEIGHT,
+            slopeGroundHeight = SLOPE_GROUND_HEIGHT,
 
             ...rest
         } = opt;
@@ -31,7 +31,7 @@ export default class Wall extends MapTiles {
             }, {
                 size,
                 dir,
-                groundHeight
+                slopeGroundHeight
             })
         });
 
