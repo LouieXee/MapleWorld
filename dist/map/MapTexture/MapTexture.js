@@ -96,12 +96,11 @@ var MapTexture = function (_Sprite) {
 
             var tiling = new TilingSprite(texture, texture.width, size * texture.height);
 
-            tiling.y = groundHeight;
-
             this.addChild(tiling);
 
             if (dir == 'left') {
                 this.x = -texture.width;
+                this.y = groundHeight;
             }
         }
     }, {
