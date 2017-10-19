@@ -3,13 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var GROUND_HEIGHT = exports.GROUND_HEIGHT = 27;
+var GROUND_HEIGHT = exports.GROUND_HEIGHT = 26;
 
 var GROUND_WIDTH = exports.GROUND_WIDTH = 90;
 
 var GROUND_EDGE_WIDTH = exports.GROUND_EDGE_WIDTH = 74;
-
-var SLOPE_GROUND_HEIGHT = exports.SLOPE_GROUND_HEIGHT = 26;
 
 var SLOPE_WIDTH = exports.SLOPE_WIDTH = 90;
 

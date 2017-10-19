@@ -91,14 +91,14 @@ var MapTexture = function (_Sprite) {
                 _opt$size = _opt.size,
                 size = _opt$size === undefined ? 1 : _opt$size,
                 dir = _opt.dir,
-                slopeGroundHeight = _opt.slopeGroundHeight;
+                groundHeight = _opt.groundHeight;
 
 
             var tiling = new TilingSprite(texture, texture.width, size * texture.height);
 
             this.addChild(tiling);
 
-            this.y = slopeGroundHeight;
+            this.y = groundHeight;
             if (dir == 'left') {
                 this.x = -texture.width;
             }
@@ -112,13 +112,13 @@ var MapTexture = function (_Sprite) {
                 size = _opt2$size === undefined ? 1 : _opt2$size,
                 _opt2$dir = _opt2.dir,
                 dir = _opt2$dir === undefined ? 'left' : _opt2$dir,
-                slopeGroundHeight = _opt2.slopeGroundHeight;
+                groundHeight = _opt2.groundHeight;
 
             var container = new Container();
             var getPositionByIndex = dir == 'left' ? function (i) {
-                return [i * texture.width, (size - 1 - i) * (texture.height - slopeGroundHeight)];
+                return [i * texture.width, (size - 1 - i) * (texture.height - groundHeight)];
             } : function (i) {
-                return [i * texture.width, i * (texture.height - slopeGroundHeight)];
+                return [i * texture.width, i * (texture.height - groundHeight)];
             };
 
             for (var i = 0; i < size; i++) {
@@ -147,7 +147,7 @@ var MapTexture = function (_Sprite) {
                 size = _opt3$size === undefined ? 1 : _opt3$size,
                 _opt3$edge = _opt3.edge,
                 edge = _opt3$edge === undefined ? 'none' : _opt3$edge,
-                deltaOfGroundAndSlope = _opt3.deltaOfGroundAndSlope;
+                groundHeight = _opt3.groundHeight;
 
             var container = new Container();
             var tiling = new TilingSprite(textureGround, size * textureGround.width, textureGround.height);
@@ -189,7 +189,7 @@ var MapTexture = function (_Sprite) {
             }
 
             this.addChild(container);
-            this.y = deltaOfGroundAndSlope;
+            this.y = groundHeight - textureGround.height;
         }
     }]);
     return MapTexture;
