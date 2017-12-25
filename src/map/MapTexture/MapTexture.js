@@ -15,21 +15,21 @@ export default class MapTexture extends Sprite {
         this._handleTextureCache();
     }
 
-    toCanvas () {
-        if (this._canvasCache) {
-            return this._canvasCache;
-        }
+    // toCanvas () {
+    //     if (this._canvasCache) {
+    //         return this._canvasCache;
+    //     }
 
-        this._canvasCache = document.createElement('canvas');
-        this.renderCanvas(new CanvasRenderer({
-            width: this.children[0].width,
-            height: this.children[0].height,
-            view: this._canvasCache,
-            transparent: true
-        }));
+    //     this._canvasCache = document.createElement('canvas');
+    //     this.renderCanvas(new CanvasRenderer({
+    //         width: this.children[0].width,
+    //         height: this.children[0].height,
+    //         view: this._canvasCache,
+    //         transparent: true
+    //     }));
 
-        return this._canvasCache;
-    }
+    //     return this._canvasCache;
+    // }
 
     _handleTextureCache () {
         switch(this._type) {

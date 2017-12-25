@@ -15,20 +15,20 @@ const MAP_CONFIG = {
     width: 1200,
     height: 800,
     robots: [
-        // {
-        //     character: 'Snail',
-        //     x: 100,
-        //     y: 0,
-        //     robotType: 'radical',
-        //     tag: 'monsters'
-        // },
-        // {
-        //     character: 'Snail',
-        //     x: 200,
-        //     y: 0,
-        //     robotType: 'cautious',
-        //     tag: 'monsters'
-        // }
+        {
+            character: 'Snail',
+            x: 100,
+            y: 0,
+            robotType: 'radical',
+            tag: 'monsters'
+        },
+        {
+            character: 'Snail',
+            x: 200,
+            y: 0,
+            robotType: 'cautious',
+            tag: 'monsters'
+        }
     ],
     grounds: [
         {
@@ -162,7 +162,7 @@ loader
     new Game({
         app,
         mapConfig: MAP_CONFIG,
-        // debug: true,
-        // showTexture: true
+        debug: true,
+        showTexture: true
     })
 })
